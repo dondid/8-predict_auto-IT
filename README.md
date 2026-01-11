@@ -17,51 +17,42 @@ Nu este doar un simplu script de predicție. Este o platformă "Enterprise-Grade
 
 ---
 
-## 🛠️ Arhitectura Tehnică
+## 🛠️ Arhitectura Tehnică & Module Noi
 
 Proiectul este împărțit în module distincte, interconectate profesional:
 
-### 1. 🧬 Core ML Engine (`src/models`)
-- **Supervised**: Random Forest, XGBoost, SVR, Neural Networks.
-- **Unsupervised**: K-Means Clustering (Segmentare Piață).
-- **Training**: Antrenat pe dataset-ul UCI (1985) pentru precizie istorică.
-- **Validare**: Cross-Validation (30 runs), Wilcoxon Test pentru comparație statistică.
+### 1. 📈 Financial Analysis & Signals (`src/financial`) [NOU]
+- **Market Data**: Preia date live de pe bursă (Yahoo Finance) pentru 45+ companii auto.
+- **Advanced Models**: Include modele Deep Learning pentru predicția trendului bursier:
+  - **LSTM, GRU, RNN**: Rețele recurente pentru serii de timp.
+  - **TCN & Transformer**: Arhitecturi state-of-the-art pentru secvențe.
+- **PDF Reporting**: Generare automată de rapoarte PDF cu grafice și analize.
 
-### 2. 🧠 AI "Senior Analyst" (`src/ai`)
-- **Tehnologie**: Google Gemini 1.5 Flash.
-- **Rol**: Analist auto care primește contextul tehnic și financiar.
-- **Capabilități**:
-    - Generează rapoarte detaliate (istoric, probleme).
-    - Estimează evoluția valorii (1985-2025).
-    - Nu halucinează (are acces la date reale).
+### 2. 🧠 Multi-Model AI Assistant (`src/ai`)
+- **Chat Avansat**: Asistent virtual cu personalități multiple:
+  - **Gemini 1.5** (Google) - Online, rapid.
+  - **Grok** (xAI) - Online, expert tehnic și creativ.
+  - **GPT-2** (Local) - Offline, rulează pe CPU.
+- **Analiză Semantică**: Interpretează datele financiare și oferă sfaturi de investiții.
 
-### 3. 🌐 Live & Modern Data Layer (`src/data`)
-- **Yahoo Finance API**: Preia în timp real prețul acțiunilor (ex: BMW.DE) și știri financiare.
-- **Modern Dataset (2024)**: Bază de date secundară cu mii de mașini moderne pentru comparație preț.
-- **SQL Backend**: Stocarea datelor în SQLite (`automobile.db`) pentru persistență.
+### 3. 🧬 Core ML Engine (`src/models`)
+- **Supervised**: Random Forest, XGBoost, SVR, Neural Networks pentru prețul mașinilor.
+- **Unsupervised**: K-Means Clustering pentru segmentarea pieței.
 
-### 4. 📊 Dashboard Interactiv (`dashboard.py`)
-- **Framework**: Streamlit.
-- **Tab-uri**:
-    - *Live Prediction*: Predicție preț + Safety Score.
-    - *Brand Encyclopedia*: Rapoarte AI + Grafice Live Market.
-    - *Data Explorer*: Vizualizări de distribuție + **Clustering Automat (K-Means)**.
-    - *Export*: Generare automată Kit Prezentare (ZIP).
+### 4. 📊 Premium Dashboard (`dashboard.py`)
+- **Framework**: Streamlit cu temă **Dark Corporate** personalizată.
+- **Pagini Cheie**:
+    - *Financial Analysis*: Grafice interactive, Dropdown selecție companii, Semnale BUY/SELL.
+    - *AI Assistant*: Chat liber cu alegerea modelului de inteligență.
+    - *Live Prediction*: Estimare preț mașini SH.
 
 ---
-
-## 🎥 Galerie & Demo
- 
-### Video Demonstrativ
-Prezentare completă a funcționalităților
-
-https://github.com/user-attachments/assets/fc2d0474-9189-49b0-a0e4-da80e42bf5cf
 
 ## 🚀 Cum rulezi proiectul?
 
 ### Varianta A: Docker (Recomandat)
 Scapi de configurări manuale. Totul e izolat.
-1. Configurează `.env` cu cheia ta Gemini.
+1. Configurează `.env` cu cheile tale (GEMINI_API_KEY, GROK_API_KEY).
 2. Rulează:
    ```bash
    docker-compose up --build
@@ -73,58 +64,23 @@ Scapi de configurări manuale. Totul e izolat.
    ```bash
    pip install -r environment.yml
    ```
-2. **Download Date Noi** (dacă nu există):
-   ```bash
-   python -m scripts.download_modern_data
-   ```
-3. **Pornire**:
+2. **Pornire**:
    ```bash
    streamlit run dashboard.py
    ```
 
 ---
 
-## 📈 Cum generezi materialele pentru prezentare?
-
-Dacă vrei graficele pentru PowerPoint sau Licență:
-
-1. **Din Interfață**:
-   - Deschide Dashboard-ul -> Sidebar Stânga jos.
-   - Apasă **"📦 Descarcă Resurse"**.
-   - Primești un ZIP cu: Ghidul de prezentare, Tabele CSV, Grafice.
-
-2. **Din Linie de Comandă** (pentru grafice tehnice):
-   - Rulează scriptul de generare plot-uri (Feature Importance, Radar Chart):
-   ```bash
-   python -m scripts.generate_presentation_plots
-   ```
-   - Găsești fișierele PNG în `outputs/figures/`.
-
----
-
-## 📁 Structura Fișierelor
-
-```
-📂 predict_auto/
-├── 📄 dashboard.py            # Punctul central (Interfața)
-├── 📄 .env                    # Chei API (Secret!)
-├── 📂 src/
-│   ├── 🧠 ai/                 # gemini_service.py (Creierul AI)
-│   ├── 🌐 data/               # live_api.py (Yahoo), loader.py (SQL/CSV)
-│   ├── 🤖 models/             # modelel ML salvate
-│   └── ⚙️ evaluation/         # statistical_tests.py
-├── 📂 outputs/
-│   ├── 📉 figures/            # Graficele salvate (PNG)
-│   └── 📑 reports/            # Rapoarte CSV
-└── 📂 scripts/                # Utilitare (download, plot generator)
-```
-
----
-
 ## 📸 Galerie Rezultate
 
-### 1. Factori Determinanți (Feature Importance)
-Ce contează cel mai mult în stabilirea prețului? (Analiză XGBoost/Random Forest)
+### 1. Financial Analysis Page
+Interfață profesională cu grafice de acțiuni, indicatori de volatilitate și tabel clar de predicții ML. Include generare raport PDF.
+
+### 2. AI Assistant (Multi-Model)
+Posibilitatea de a discuta cu Grok, Gemini sau GPT-2 direct din interfață.
+
+### 3. Factori Determinanți (Feature Importance)
+Analiză XGBoost/Random Forest asupra prețului.
 
 <img width="1000" height="600" alt="presentation_feature_importance" src="https://github.com/user-attachments/assets/2a6d21a7-da7f-4d2c-8cd3-56b882d0ecc3" />
 

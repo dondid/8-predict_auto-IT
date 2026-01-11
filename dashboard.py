@@ -76,7 +76,7 @@ def predict_price(model_name, input_data):
 # Sidebar
 st.sidebar.title("🚗 Auto Predictor")
 st.sidebar.markdown("---")
-page = st.sidebar.radio("Navigare", ["Data Explorer", "Detailed Statistics", "Brand Encyclopedia", "Model Performance", "Live Prediction", "🤖 AI Assistant"])
+page = st.sidebar.radio("Navigare", ["Data Explorer", "Detailed Statistics", "Brand Encyclopedia", "Model Performance", "Financial Analysis", "Live Prediction", "🤖 AI Assistant"])
 st.sidebar.markdown("---")
 st.sidebar.info("Proiect Machine Learning\nPredicția Prețului Automobilelor")
 
@@ -620,96 +620,374 @@ elif page == "Live Prediction":
 elif page == "🤖 AI Assistant":
     import google.generativeai as genai
     from src.config import GEMINI_API_KEY
+    from src.financial.engine import GrokModel, GPT2Model
+    import os
     
-    st.title("🤖 AI Auto Assistant")
-    st.markdown("Discută cu un asistent inteligent despre datele din proiect.")
+    st.title("🤖 Advanced Auto Assistant")
+    st.markdown("Discută cu experții noștri virtuali (Gemini, Grok sau GPT-2).")
     
-    # API Key Handling
-    # API Key Handling
-    if GEMINI_API_KEY and len(GEMINI_API_KEY) > 10:
-        st.success("🟢 Online Mode Activ: Cheia API a fost încărcată securizat din `.env`.")
-        api_key = GEMINI_API_KEY
-    else:
-        st.warning("🔴 Demo Mode (Limitat): Nu s-a detectat nicio cheie API în `.env`.")
-        st.info("💡 Pentru a elimina limitarea și a avea un AI inteligent, adaugă cheia în fișierul `.env`.")
-        api_key = st.text_input("Sau introdu cheia temporar aici:", type="password")
+    # --- MODEL SELECTION ---
+    col_sel, col_info = st.columns([2, 1])
+    with col_sel:
+        model_choice = st.selectbox(
+            "Alege Modelul AI:",
+            ["Gemini 1.5 (Google) - Online", "Grok (xAI) - Online", "GPT-2 (Local Inference) - Offline", "Simulare (Mock)"],
+            index=0,
+            help="Selectează 'creierul' din spatele asistentului."
+        )
     
-    # Initialize Chat History if needed
+    # API Key Handling (Shared logic)
+    api_key_gemini = GEMINI_API_KEY
+    api_key_grok = os.getenv("GROK_API_KEY")
+    
+    # Status Indicators
+    with col_info:
+        if "Gemini" in model_choice:
+            if api_key_gemini and len(api_key_gemini) > 10:
+                st.success("🟢 Gemini Ready")
+            else:
+                st.error("🔴 Gemini Key Missing")
+        elif "Grok" in model_choice:
+            if api_key_grok and len(api_key_grok) > 10:
+                st.success("🟢 Grok Ready")
+            else:
+                st.error("🔴 Grok Key Missing")
+        elif "GPT-2" in model_choice:
+             st.info("🟠 Model Local (CPU)")
+
+    # Initialize Chat History
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
-        st.session_state.chat_history.append({"role": "assistant", "content": "Salut! Sunt asistentul tău auto. Ai vreo curiozitate despre datele din proiect?"})
+        st.session_state.chat_history.append({"role": "assistant", "content": "Salut! Cu cine vrei să vorbești astăzi?"})
 
     # Display Chat
     for msg in st.session_state.chat_history:
-        with st.chat_message(msg["role"]):
+        avatar = "🤖"
+        if msg["role"] == "user": avatar = "👤"
+        elif "Grok" in model_choice and msg["role"] == "assistant": avatar = "🧠" 
+        
+        with st.chat_message(msg["role"], avatar=avatar):
             st.write(msg["content"])
     
     # User Input
-    user_input = st.chat_input("Întreabă ceva despre mașini...")
+    user_input = st.chat_input("Scrie mesajul tău...")
     
     if user_input:
         # Add to UI history
         st.session_state.chat_history.append({"role": "user", "content": user_input})
-        with st.chat_message("user"):
+        with st.chat_message("user", avatar="👤"):
             st.write(user_input)
         
-        # Determine Response Source
-        if api_key:
-            # ONLINE MODE (Gemini)
-            try:
-                genai.configure(api_key=api_key)
-                
-                # Context (only create once if possible, but fit here)
-                # Context (Mega-Prompt - OPEN DOMAIN)
-                df = load_data()
-                context = f"""
-                Ești un "Senior Automotive Market & Safety Analyst" și un pasionat de mașini (Car Enthusiast).
-                
-                AI ACCES LA DATE ISTORICE (1985):
-                - Preț mediu: ${df['price'].mean():.2f}
-                - Mărci: {', '.join(df['make'].unique())}
-                
-                DAR CUNOȘTINȚELE TALE SUNT NELIMITATE:
-                Poți discuta despre ORICE subiect auto, din 1900 până în prezent:
-                - Mașini moderne (Tesla, Hybrid, Autonome).
-                - Mecanică detaliată (cum funcționează un motor, transmisie).
-                - Sfaturi de cumpărare (ce mașină să iau în 2024?).
-                - Istorie și cultură auto.
-                
-                STILUL TĂU:
-                - Prietenos, pasionat, dar foarte informat.
-                - Nu te limita doar la setul de date din 1985 decât dacă utilizatorul cere specific informații despre acele mașini.
-                - Încurajează discuția.
-                """
-                
-                if "chat_session" not in st.session_state:
-                    model = genai.GenerativeModel("gemini-1.5-flash")
-                    st.session_state.chat_session = model.start_chat(history=[{"role": "user", "parts": context}])
-                
-                # --- TOPIC STARTERS (New) ---
-                st.markdown("###### 💬 Idei de discuție:")
-                col_t1, col_t2, col_t3 = st.columns(3)
-                if col_t1.button("Istoria BMW"): user_input = "Povestește-mi istoria brandului BMW și cele mai legendare modele."
-                if col_t2.button("Diesel vs Benzină"): user_input = "Care sunt avantajele și dezavantajele motoarelor Diesel vs Benzină?"
-                if col_t3.button("Viitorul Electric"): user_input = "Ce părere ai despre mașinile electrice? Vor înlocui complet motoarele termice?"
-                
-                if user_input:
-                     with st.spinner("AI-ul gândește (Online)..."):
+        reply_text = "Eroare generare răspuns."
+        
+        # --- GENERATION LOGIC ---
+        
+        # 1. GEMINI
+        if "Gemini" in model_choice:
+            if api_key_gemini:
+                try:
+                    genai.configure(api_key=api_key_gemini)
+                    # Mega-Prompt
+                    df = load_data()
+                    context = f"""
+                    Ești un "Senior Automotive Market & Safety Analyst" și pasionat auto.
+                    Date context: {', '.join(df['make'].unique()[:10])}...
+                    Răspunde prietenos și detaliat.
+                    """
+                    if "chat_session" not in st.session_state:
+                        model = genai.GenerativeModel("gemini-1.5-flash")
+                        st.session_state.chat_session = model.start_chat(history=[{"role": "user", "parts": context}])
+                    
+                    with st.spinner("Gemini scrie..."):
                         response = st.session_state.chat_session.send_message(user_input)
                         reply_text = response.text
+                except Exception as e:
+                    reply_text = f"Eroare Gemini: {e}"
+            else:
+                reply_text = "Lipsă cheie API Gemini (.env)."
+        
+        # 2. GROK
+        elif "Grok" in model_choice:
+            if api_key_grok:
+                try:
+                    grok = GrokModel(api_key=api_key_grok)
+                    # Custom Persona for Chat
+                    persona = """Ești un entuziast auto cu cunoștințe enciclopedice. 
+                    Stilul tău este tehnic dar pasionat. Poți vorbi despre orice mașină, nu doar cele din baza de date."""
+                    
+                    with st.spinner("Grok gândește..."):
+                         reply_text = grok.genereaza(user_input, system_instruction=persona)
+                except Exception as e:
+                    reply_text = f"Eroare Grok: {e}"
+            else:
+                reply_text = "Lipsă cheie API Grok (GROK_API_KEY in .env)."
+
+        # 3. GPT-2
+        elif "GPT-2" in model_choice:
+            try:
+                # Lazy load to save memory if not used
+                with st.spinner("GPT-2 (Local) generează..."):
+                    gpt = GPT2Model()
+                    # GPT-2 is simple autocomplete, so we prompt it carefully
+                    prompt = f"User asks about cars: {user_input}\nExpert Answer:"
+                    reply_text = gpt.genereaza(prompt, max_length=150)
             except Exception as e:
-                reply_text = f"Eroare Online: {e}. Trecem pe modul Offline."
-                api_key = None # Fallback logic could be complex, simplifying here
+                reply_text = f"Eroare GPT-2: {e}"
+
+        # 4. MOCK
         else:
-            # OFFLINE MODE (Mock)
             from src.ai.mock_assistant import MockAI
             df = load_data()
             mock_ai = MockAI(df)
-            with st.spinner("Căutare în statistici (Offline Demo)..."):
-                time.sleep(0.5) # Simulate thinking
+            with st.spinner("Mod Simulare..."):
+                time.sleep(0.5)
                 reply_text = mock_ai.generate_response(user_input)
         
         # Add to UI history
         st.session_state.chat_history.append({"role": "assistant", "content": reply_text})
-        with st.chat_message("assistant"):
+        with st.chat_message("assistant", avatar="🤖" if "Grok" not in model_choice else "🧠"):
             st.write(reply_text)
+
+elif page == "Financial Analysis":
+    from src.financial.engine import FinancialCoordinator
+    from src.financial.report_generator import ReportGenerator
+    from src.data.companii_automotive import COMPANII_AUTOMOTIVE
+    import plotly.graph_objects as go
+    import tempfile
+
+    # --- PREMIUM UI CSS ---
+    st.markdown("""
+    <style>
+    /* Main Background adjustments if needed */
+    .stApp {
+        background-color: #0e1117;
+    }
+    
+    /* Premium Metric Cards */
+    div[data-testid="stMetric"] {
+        background-color: #1f2937;
+        border: 1px solid #374151;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    div[data-testid="stMetric"] label {
+        color: #9ca3af;
+        font-size: 0.9rem;
+    }
+    div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
+        color: #f3f4f6;
+        font-weight: 600;
+    }
+    
+    /* Custom Buttons */
+    div.stButton > button {
+        background: linear-gradient(90deg, #4f46e5 0%, #3b82f6 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: ball;
+        transition: all 0.2s;
+    }
+    div.stButton > button:hover {
+        transform: scale(1.02);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Table Styling */
+    div[data-testid="stDataFrame"] {
+        border: 1px solid #374151;
+        border-radius: 8px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    st.title("📈 Financial Analysis & AI Prediction")
+    st.markdown("### Professional Stock Analysis Platform")
+    
+    # Initialize Coordinator
+    @st.cache_resource
+    def get_financial_coordinator():
+        return FinancialCoordinator()
+        
+    coordinator = get_financial_coordinator()
+    
+    # Sidebar Controls
+    with st.sidebar:
+        st.markdown("### ⚙️ Control Panel")
+        if st.button("🔄 Actualizează Date Istorice"):
+            with st.spinner("Actualizare date..."):
+                coordinator.ensure_data_updated()
+            st.success("Date actualizate!")
+            
+    # Main Search Input
+    
+    # Prepare dropdown options
+    # Format: "Tesla (TSLA) - SUA"
+    company_options = [f"{c[0]} ({c[1]})" for c in COMPANII_AUTOMOTIVE]
+    # Map "Tesla (TSLA)" -> "TSLA"
+    option_to_symbol = {f"{c[0]} ({c[1]})": c[1] for c in COMPANII_AUTOMOTIVE}
+    
+    col_in1, col_in2 = st.columns([3, 1])
+    with col_in1:
+        # Default to Tesla if available
+        default_index = 0
+        for i, opt in enumerate(company_options):
+            if "Tesla" in opt:
+                default_index = i
+                break
+                
+        selected_option = st.selectbox("Alege Compania", company_options, index=default_index, label_visibility="collapsed")
+        symbol_input = option_to_symbol[selected_option]
+        
+    with col_in2:
+        analyze_btn = st.button("Analizează 🚀", use_container_width=True)
+        
+    if analyze_btn or symbol_input:
+        with st.spinner(f"Processing Analysis for {selected_option}..."):
+            try:
+                result = coordinator.analyze_company(symbol_input)
+                
+                if "error" in result:
+                    st.error(result["error"])
+                else:
+                    # 1. Header & Metrics
+                    st.markdown(f"## 🏢 {result['company_name']} <span style='color:#6b7280; font-size:0.8em'>({result['symbol']})</span>", unsafe_allow_html=True)
+                    
+                    m = result['metrics']
+                    
+                    c1, c2, c3, c4 = st.columns(4)
+                    c1.metric("Preț Curent", f"${result['current_price']:.2f}", 
+                              delta=f"{m['evolutie_procent']:.2f}%")
+                    c2.metric("Trend", m['trend'].upper(), 
+                              delta_color="normal" if m['trend']=="stabil" else ("inverse" if m['trend']=="descrescator" else "off")) 
+                    c3.metric("Volatilitate", f"{m['volatilitate']:.2f}%", 
+                              delta="Risc Ridicat" if m['volatilitate'] > 3 else "Risc Scăzut")
+                    c4.metric("Consensus", result['consensus'], 
+                               delta=f"{result['vote_counts']['CUMPARA']} Voturi", delta_color="off")
+                    
+                    st.markdown("---")
+                    
+                    # 2. Charts & Predictions Layout
+                    c_chart, c_pred = st.columns([2, 1])
+                    
+                    with c_chart:
+                        st.subheader("📉 Market Data")
+                        df = result['data']
+                        
+                        fig = go.Figure(data=[go.Candlestick(x=df['Data'],
+                                        open=df['Open'], high=df['High'],
+                                        low=df['Low'], close=df['Close'],
+                                        name='OHLC')])
+                                        
+                        fig.update_layout(
+                            xaxis_title="Data",
+                            yaxis_title="Preț ($)",
+                            height=450,
+                            margin=dict(l=20, r=20, t=30, b=20),
+                            paper_bgcolor='rgba(0,0,0,0)',
+                            plot_bgcolor='rgba(0,0,0,0)',
+                            font=dict(color="#f3f4f6")
+                        )
+                        st.plotly_chart(fig, use_container_width=True)
+                        
+                    with c_pred:
+                        st.subheader("🤖 Model Signals")
+                        preds = result['predictions']
+                        
+                        # Prepare data for display
+                        pred_data = []
+                        for model, val in preds.items():
+                            if model == "Prolog_explicatie": continue
+                            if val == 1: 
+                                decision = "🟢 BUY"
+                            elif val == -1: 
+                                decision = "🔴 SELL"
+                            else: 
+                                decision = "🟡 HOLD"
+                            pred_data.append({"Model": model, "Signal": decision})
+                            
+                        # Styled dataframe
+                        st.dataframe(
+                            pd.DataFrame(pred_data).set_index("Model"), 
+                            use_container_width=True,
+                            column_config={"Signal": st.column_config.TextColumn("Signal", width="medium")}
+                        )
+                        
+                        st.info(f"**Consensus:** {result['consensus']}")
+
+                    # 3. AI Insights & Reporting
+                    st.markdown("---")
+                    st.subheader("🧠 Advanced Intelligence & Reporting")
+                    
+                    c_ai, c_report = st.columns([3, 1])
+                    
+                    # AI Analysis Logic
+                    gpt_text = "(Generare la cerere...)"
+                    grok_text = "(Generare la cerere...)"
+                    
+                     # Auto-generate or just placeholder? Let's auto-generate context if needed or lazy load
+                     # User explicitly asked for Grok/GPT-2 in the tab, doing it efficiently:
+                    
+                    with c_ai:
+                        with st.expander("Show AI Analyst Insights", expanded=True):
+                            with st.spinner("Consulting AI Models..."):
+                                # Check if we already have it or need to call
+                                # For speed, we might want to just call it
+                                try:
+                                   if 'ai_cache' not in st.session_state: st.session_state.ai_cache = {}
+                                   cache_key = f"{result['symbol']}_{result['data'].iloc[-1].name}"
+                                   
+                                   if cache_key in st.session_state.ai_cache:
+                                       grok_text, gpt_text = st.session_state.ai_cache[cache_key]
+                                   else:
+                                       # Call engine
+                                       gpt_text = coordinator.generate_gpt_analysis(result['symbol'], m)
+                                       grok_text = coordinator.generate_grok_analysis(result['symbol'], m, result['consensus'])
+                                       st.session_state.ai_cache[cache_key] = (grok_text, gpt_text)
+                                       
+                                   st.markdown(f"**Grok 🧠:** {grok_text}")
+                                   st.divider()
+                                   st.markdown(f"**GPT-2 🤖:** {gpt_text}")
+                                except Exception as e:
+                                    st.warning(f"AI Generation Error: {e}")
+
+                    with c_report:
+                        st.write("Generare Raport PDF")
+                        if st.button("📄 Download PDF Report"):
+                            with st.spinner("Generating PDF..."):
+                                # Try to save chart
+                                chart_path = None
+                                try:
+                                    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmpfile:
+                                        fig.write_image(tmpfile.name)
+                                        chart_path = tmpfile.name
+                                except Exception as e:
+                                    st.warning(f"Chart image export failed (Kaleido missing?), PDF will be text only. {e}")
+                                
+                                # Generate PDF
+                                combined_ai_text = f"GROK: {grok_text}\n\nGPT-2: {gpt_text}"
+                                pdf_path = ReportGenerator.generate_pdf(
+                                    data=result,
+                                    metrics=m,
+                                    predictions=result['predictions'],
+                                    consensus=result['consensus'],
+                                    ai_analysis=combined_ai_text,
+                                    chart_image_path=chart_path
+                                )
+                                
+                                # Read PDF binary
+                                with open(pdf_path, "rb") as f:
+                                    pdf_data = f.read()
+                                    
+                                st.download_button(
+                                    label="📥 Download PDF",
+                                    data=pdf_data,
+                                    file_name=f"Report_{result['symbol']}.pdf",
+                                    mime="application/pdf"
+                                )
+                                st.success("Ready!")
+
+            except Exception as e:
+                st.error(f"Eroare procesare: {e}")
+
