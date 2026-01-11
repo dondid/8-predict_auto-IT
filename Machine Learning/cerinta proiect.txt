@@ -1,7 +1,0 @@
-Subiectul proiectului trebuie să se încadreze în una dintre următoarele categorii:
-- O metodă tradițională de învățare automată (învățare supervizată) care nu a fost prezentată la curs, implementată printr-un pachet/bibliotecă R/Python
-- O metodă de învățare nesupervizată(clustering)
-- Alte pachete/biblioteci/funcții R/Python (diferite de cele implementate la curs) pentru modelele prezentate
-- O problemă diferită de cele prezentate la curs, implementată în R/Python prin cel puțin trei modele tradiționale diferite, cu măsuri de performanță și teste statistice comparative
-- O arhitectură de deep learning pentru modelarea imaginii/textului/semnalului, diferită de cele prezentate, implementată în Python
-- O comparație a mai multor arhitecturi de deep learning pe o problema nouă, implementată în Python, cu măsuri de performanță și teste statistice comparative
