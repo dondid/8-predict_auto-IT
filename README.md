@@ -118,15 +118,21 @@ Dacă vrei graficele pentru PowerPoint sau Licență:
 
 ### 1. Factori Determinanți (Feature Importance)
 Ce contează cel mai mult în stabilirea prețului? (Analiză XGBoost/Random Forest)
-![Feature Importance](outputs/figures/presentation_feature_importance.png)
+
+<img width="1000" height="600" alt="presentation_feature_importance" src="https://github.com/user-attachments/assets/2a6d21a7-da7f-4d2c-8cd3-56b882d0ecc3" />
+
 
 ### 2. Performanța Modelelor (R²)
 Comparație directă între algoritmii testați.
-![Model Comparison](outputs/figures/presentation_model_comparison.png)
+
+<img width="1000" height="600" alt="presentation_model_comparison" src="https://github.com/user-attachments/assets/93ad6ac0-7c67-4e54-a9b7-8fb12eed9ba7" />
+
 
 ### 3. Validare Statistică (Wilcoxon Heatmap)
 Dovada științifică că diferențele dintre modele sunt semnificative (p < 0.05).
-![Statistical Significance](outputs/figures/wilcoxon_heatmap.png)
+
+<img width="3000" height="2400" alt="wilcoxon_heatmap" src="https://github.com/user-attachments/assets/613788f8-38a2-44e4-a4e7-f9f880e34a01" />
+
 
 ---
 *Acest proiect demonstrează competențe Full-Stack Data Science: de la ETL și SQL, la ML avansat și integrare LLM în producție.*
