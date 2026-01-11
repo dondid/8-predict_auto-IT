@@ -294,6 +294,33 @@ for col in X.select_dtypes(include=['object']).columns:
 
 ---
 
+### ❌ Eroare 11: "Streamlit command not found"
+
+**Descriere**: Nu poți rula `streamlit run dashboard.py`
+
+**Cauză**: `streamlit` nu e în PATH sau e instalat în alt venv
+
+**Soluție**:
+```bash
+python -m streamlit run dashboard.py
+```
+Sau reinstalează: `pip install streamlit`
+
+---
+
+### ❌ Eroare 12: "Gemini API Key Missing"
+
+**Descriere**: AI Assistant nu răspunde / apare eroare 403
+
+**Cauză**: Cheia API nu e setată în `.env`
+
+**Soluție**:
+1. Creează fișier `.env` (copiază din `.env.example`)
+2. Adaugă linia: `GEMINI_API_KEY=AIzaSy...` (cheia ta reală)
+3. Restart la aplicație
+
+---
+
 ## 🎯 Întrebări Frecvente (FAQ)
 
 ### Q1: Cât timp durează să rulez tot proiectul?

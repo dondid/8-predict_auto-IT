@@ -319,7 +319,37 @@ Folosește emoji sau iconițe colorate pentru clasament
 
 ---
 
-## Slide 9: Concluzii 🎓
+## Slide 9: Integrare AI & Clustering 🤖
+
+### Layout:
+```
+┌────────────────────────────────────────────┐
+│  Analiză Avansată: AI & Live Data         │
+│                                            │
+│  🧠 GOOGLE GEMINI ("Senior Analyst")       │
+│  • Rapoarte generate automat               │
+│  • Context istoric și analiză brand        │
+│                                            │
+│  🧩 CLUSTERING (Unsupervised Learning)     │
+│  • K-Means: Segmentare automată (4 grupe)  │
+│  • [Mini plot: Clustering Scatter]         │
+│                                            │
+│  🌐 LIVE DATA (Yahoo Finance)              │
+│  • Preț acțiuni în timp real               │
+│  • Impact financiar curent                 │
+│                                            │
+│  Exemplu: "BMW scade cu 2% azi, risc mediu"│
+└────────────────────────────────────────────┘
+```
+
+### Elemente Cheie:
+- Subliniază cuvintele cheie: **AI**, **Clustering**, **Live**
+- Arată că proiectul e mai mult decât o simplă predicție
+- Poți pune screenshot din tab-ul "Brand Encyclopedia" sau "Data Explorer"
+
+---
+
+## Slide 10: Concluzii 🎓
 
 ### Layout:
 ```
@@ -417,7 +447,7 @@ Accent 3:        #34D399 (verde mint)
 
 ## ✅ Checklist Final PPT
 
-- [ ] 9 slides (Title + 8 conținut)
+- [ ] 10 slides (Title + 9 conținut)
 - [ ] Toate plot-urile inserate și alinate
 - [ ] Font consistent pe toate slide-urile
 - [ ] Numerele reale completate (R², RMSE, etc.)

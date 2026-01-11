@@ -50,6 +50,13 @@ Proiectul este împărțit în module distincte, interconectate profesional:
 
 ---
 
+## 🎥 Galerie & Demo
+ 
+### Video Demonstrativ
+Prezentare completă a funcționalităților
+
+https://github.com/user-attachments/assets/fc2d0474-9189-49b0-a0e4-da80e42bf5cf
+
 ## 🚀 Cum rulezi proiectul?
 
 ### Varianta A: Docker (Recomandat)

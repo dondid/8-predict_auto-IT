@@ -15,6 +15,18 @@ Un **sistem complet de Machine Learning** pentru predicția prețului automobile
 
 ---
 
+---
+
+## ✨ New Features (Updates 2025)
+
+Platforma a fost extinsă cu funcționalități de ultimă generație:
+1.  **Analiză AI Generativă**: Agent Google Gemini integrat pentru rapoarte financiare (*"Senior Analyst"*).
+2.  **Date Live**: Conectare la Yahoo Finance API pentru prețuri acțiuni în timp real.
+3.  **Unsupervised Learning**: K-Means Clustering pentru segmentare piață (Economic, Sport, Lux).
+4.  **Dashboard Interactiv**: Streamlit UI cu filtre dinamice și grafice interactive.
+
+---
+
 ## 🚀 Quick Start (3 comenzi)
 
 ```bash

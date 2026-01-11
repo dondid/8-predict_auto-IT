@@ -27,10 +27,6 @@ def run_pipeline(args):
     if args.compare:
         logger.info("Running STATISTICAL COMPARISON mode...")
         from src.evaluation.statistical_tests import ModelComparator
-        from src.models.random_forest import RandomForestModel
-        from src.models.xgboost_model import XGBoostModel
-        from src.models.svr import SVRModel
-        from src.models.neural_network import NeuralNetworkModel
         
         # Instantiate wrappers to access underlying models
         models_to_compare = {

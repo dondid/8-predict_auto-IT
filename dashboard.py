@@ -260,6 +260,7 @@ if page == "Data Explorer":
             # This is a bit complex to map back efficiently in one line, skipping for robustness.
             X_cluster['Cluster_Label'] = "Segment " + X_cluster['Cluster'].astype(str)
             X_cluster['Make'] = df['make']
+            X_cluster['city-mpg'] = df['city-mpg']
             
             st.caption(f"Algoritmul **K-Means** a grupat automat vehiculele în **{k} segmente** bazate pe preț, putere și greutate.")
             
