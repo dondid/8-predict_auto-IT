@@ -51,305 +51,140 @@ Data:
 
 ---
 
-## Slide 2: Introducere 📋
+---
+
+## Slide 2: Context & Dataset 📋
 
 ### Layout:
 ```
 ┌────────────────────────────────────────────┐
-│  Introducere                               │
+│  Dataset & Obiective                      │
 │                                            │
-│  PROBLEMA                                  │
-│  • Predicția prețului automobile          │
-│  • Pe baza caracteristicilor tehnice      │
+│  DATASET UCI AUTOMOBILE (1985)             │
+│  • 205 instanțe, 26 atribute (Features)    │
+│  • Target: Price (Variabilă continuă)      │
+│  • Key Features: horsepower, engine-size   │
 │                                            │
-│  DATASET                                   │
-│  • UCI Automobile Data Set                │
-│  • 205 instanțe, 26 atribute              │
-│  • Features: engine-size, horsepower...   │
+│  OBIECTIVE PROIECT                         │
+│  1. ML Predictiv: Estimare preț (Regresie) │
+│  2. Măsurare Risc: Safety Score calculat   │
+│  3. Consultanță: Agent AI integrat         │
 │                                            │
-│  MOTIVAȚIE                                 │
-│  • Platforme vânzare auto                 │
-│  • Evaluare vehicule second-hand          │
-│  • Decizie automată credit auto           │
-│                                            │
-│  [Mini plot: price distribution]           │
+│  "Un sistem complet: de la date brute la   │
+│   decizie de investiție asistată de AI."   │
 └────────────────────────────────────────────┘
 ```
 
-### Imagini de inclus:
-- `price_distribution.png` (partea din stânga - histograma)
+---
+
+## Slide 3: Arhitectura Tehnică (Hybrid) 🏗️
+
+### Layout:
+```
+┌───────────────────────┬──────────────────────┐
+│  CORE ML ENGINE       │  MODERN LAYERS       │
+│  (Python / Scikit)    │  (API / Streamlit)   │
+│                       │                      │
+│  1. Preprocessing     │  3. Live Data Layer  │
+│     Clean & Scale     │     Yahoo Finance    │
+│        ↓              │        ↓             │
+│  2. Models (4)        │  4. AI Analyst       │
+│     RF, XGB, SVR, NN  │     Google Gemini    │
+│        ↓              │        ↓             │
+│  3. Validation        │  5. Dashboard        │
+│     Wilcoxon Test     │     Streamlit UI     │
+└───────────────────────┴──────────────────────┘
+```
+**Esențial din README**: Subliniază structura modulară: ML Clasic + AI Modern.
 
 ---
 
-## Slide 3: Metodologie 🔄
+## Slide 4: ML Performance & Top Features 🏆
 
 ### Layout:
 ```
 ┌────────────────────────────────────────────┐
-│  Pipeline Machine Learning                 │
+│  Rezultate Supervised Learning            │
+│  (XGBoost vs Random Forest)                │
 │                                            │
-│         ┌─────────────┐                   │
-│         │    Date     │                   │
-│         └──────┬──────┘                   │
-│                ↓                           │
-│         ┌─────────────┐                   │
-│         │Preprocessing│                   │
-│         └──────┬──────┘                   │
-│                ↓                           │
-│      ┌─────────────────┐                  │
-│      │     Modele      │                  │
-│      │ RF│XGB│SVR│NN  │                  │
-│      └────────┬────────┘                  │
-│               ↓                            │
-│         ┌─────────────┐                   │
-│         │  Evaluare   │                   │
-│         └──────┬──────┘                   │
-│                ↓                           │
-│         ┌─────────────┐                   │
-│         │ Comparație  │                   │
-│         └─────────────┘                   │
+│  PERFORMANȚĂ (R² Score)                    │
+│  • XGBoost: ~0.91 (Campion)                │
+│  • Random Forest: ~0.89                    │
 │                                            │
-│  Preprocessing:                            │
-│  • Cleaning, Encoding, Scaling             │
-│  • Feature Engineering                     │
+│  FACTORI DETERMINANȚI (Feature Importance) │
+│  1. Engine-Size (Dimensiune motor)         │
+│  2. Curb-Weight (Greutate)                 │
+│  3. Horsepower (Cai putere)                │
 │                                            │
-│  Evaluare:                                 │
-│  • MSE, RMSE, MAE, R²                     │
-│  • Cross-Validation (30 runs)             │
-│  • Wilcoxon Test                           │
+│  [Include grafic: presentation_feature_importance.png]
 └────────────────────────────────────────────┘
 ```
 
-### Elemente Cheie:
-- Diagramă flow vizuală
-- Bullets scurți pentru fiecare etapă
-- Folosește iconițe sau forme colorate
+---
+
+## Slide 5: Validare & Unsupervised Learning 🧩
+
+### Layout:
+```
+┌────────────────────┬───────────────────────┐
+│ Validare Statistică│ Clustering (K-Means)  │
+│ (Wilcoxon Test)    │ (Bonus Feature)       │
+│                    │                       │
+│ • p-value < 0.05   │ • Segmentare Piață    │
+│ • Diferențe reale  │ • 4 Clustere:         │
+│   între modele     │   Economic, Sport,    │
+│                    │   Lux, SUV            │
+│                    │                       │
+│ [Heatmap Image]    │ [Scatter Plot Image]  │
+└────────────────────┴───────────────────────┘
+```
+**Esențial**: Demonstrează rigoarea academică (Wilcoxon) și inovația (Clustering).
 
 ---
 
-## Slide 4: Random Forest 🌲
+## Slide 6: AI & Live Market Data 🧠
 
 ### Layout:
 ```
 ┌────────────────────────────────────────────┐
-│  Model 1: Random Forest Regressor         │
+│  "Senior Analyst" - Google Gemini         │
 │                                            │
-│  CONFIGURAȚIE                              │
-│  • Ensemble: 200 arbori                   │
-│  • Max depth: 20                           │
-│  • Bagging cu replacement                 │
+│  CUM FUNCȚIONEAZĂ:                         │
+│  1. Dashboard trimite date tehnice (ML)    │
+│  2. API preia date financiare (Yahoo)      │
+│  3. Gemini generează raport complet        │
 │                                            │
-│  ┌──────────────────┬──────────────────┐  │
-│  │ Feature Import.  │  Predictions     │  │
-│  │                  │                  │  │
-│  │  [PLOT 1]        │   [PLOT 2]       │  │
-│  │                  │                  │  │
-│  │                  │                  │  │
-│  └──────────────────┴──────────────────┘  │
-│                                            │
-│  REZULTATE TEST SET                        │
-│  • R² = [X.XXXX]                          │
-│  • RMSE = [X,XXX.XX]                      │
-│  • MAE = [X,XXX.XX]                       │
-│                                            │
-│  Top Features: engine-size, curb-weight   │
+│  EXEMPLU REAL:                             │
+│  • Input: "BMW, 182cp, Preț ML: $25k"      │
+│  • Live: "Acțiuni BMW scad cu 1.5%"        │
+│  • Verdict AI: "Preț corect, dar risc      │
+│    de depreciere pe termen scurt."         │
 └────────────────────────────────────────────┘
-```
-
-### Imagini de inclus:
-- **Stânga**: `rf_feature_importance.png`
-- **Dreapta**: `rf_predictions.png` (partea pentru Test Set)
-
-### Textbox pentru metrici:
-```
-┌─────────────────────────┐
-│ REZULTATE TEST SET      │
-│ ─────────────────────── │
-│ R² Score:  0.XXXX       │
-│ RMSE:      X,XXX.XX $   │
-│ MAE:       X,XXX.XX $   │
-│ MAPE:      XX.XX %      │
-└─────────────────────────┘
 ```
 
 ---
 
-## Slide 5: XGBoost 🚀
+## Slide 7: Dashboard & Demo 🎥
 
 ### Layout:
 ```
 ┌────────────────────────────────────────────┐
-│  Model 2: XGBoost (Gradient Boosting)     │
+│  Interfață Utilizator (Streamlit)          │
 │                                            │
-│  CONFIGURAȚIE                              │
-│  • Boosting: 200 estimatori               │
-│  • Learning rate: 0.1                      │
-│  • Early stopping activat                 │
+│  FUNCȚIONALITĂȚI CHEIE:                    │
+│  • Filtrare Avansată (Brand, Preț, Tip)    │
+│  • Galerie Grafice Interactive             │
+│  • Export Raport PDF/ZIP                   │
 │                                            │
-│  ┌──────────────────┬──────────────────┐  │
-│  │ Learning Curves  │  Predictions     │  │
-│  │                  │                  │  │
-│  │  [PLOT 1]        │   [PLOT 2]       │  │
-│  │                  │                  │  │
-│  │                  │                  │  │
-│  └──────────────────┴──────────────────┘  │
+│  [Screenshot mare cu Dashboard-ul]         │
 │                                            │
-│  REZULTATE TEST SET                        │
-│  • R² = [X.XXXX]                          │
-│  • RMSE = [X,XXX.XX]                      │
-│  • MAE = [X,XXX.XX]                       │
-│                                            │
-│  Convergență: ~[XX] iterații              │
+│  "Transformăm codul într-un produs finit"  │
 └────────────────────────────────────────────┘
 ```
 
-### Imagini de inclus:
-- **Stânga**: `xgb_learning_curves.png`
-- **Dreapta**: `xgb_predictions.png` (Test Set)
-
 ---
 
-## Slide 6: Support Vector Regression 🎯
-
-### Layout:
-```
-┌────────────────────────────────────────────┐
-│  Model 3: Support Vector Regression (SVR) │
-│                                            │
-│  CONFIGURAȚIE                              │
-│  • Kernel: RBF (Radial Basis Function)    │
-│  • C: 100, Gamma: scale                    │
-│  • Margin-based learning                   │
-│                                            │
-│  ┌──────────────────┬──────────────────┐  │
-│  │ Kernel Compare   │  Predictions     │  │
-│  │                  │                  │  │
-│  │  [PLOT 1]        │   [PLOT 2]       │  │
-│  │                  │                  │  │
-│  │                  │                  │  │
-│  └──────────────────┴──────────────────┘  │
-│                                            │
-│  REZULTATE TEST SET                        │
-│  • R² = [X.XXXX]                          │
-│  • RMSE = [X,XXX.XX]                      │
-│  • MAE = [X,XXX.XX]                       │
-│                                            │
-│  Support Vectors: [XX]% din training      │
-└────────────────────────────────────────────┘
-```
-
-### Imagini de inclus:
-- **Stânga**: `svr_kernel_comparison.png`
-- **Dreapta**: `svr_predictions.png` (Test Set)
-
----
-
-## Slide 7: Neural Network 🧠
-
-### Layout:
-```
-┌────────────────────────────────────────────┐
-│  Model 4: Neural Network (MLP Regressor)  │
-│                                            │
-│  ARHITECTURĂ                               │
-│  Input → [100] → [50] → [30] → Output     │
-│  • Activation: ReLU                        │
-│  • Optimizer: Adam                         │
-│  • Regularization: L2 + Early Stopping    │
-│                                            │
-│  ┌──────────────────┬──────────────────┐  │
-│  │ Learning Curves  │  Predictions     │  │
-│  │                  │                  │  │
-│  │  [PLOT 1]        │   [PLOT 2]       │  │
-│  │                  │                  │  │
-│  │                  │                  │  │
-│  └──────────────────┴──────────────────┘  │
-│                                            │
-│  REZULTATE TEST SET                        │
-│  • R² = [X.XXXX]                          │
-│  • RMSE = [X,XXX.XX]                      │
-│  • MAE = [X,XXX.XX]                       │
-│                                            │
-│  Convergență: [XXX] iterații              │
-└────────────────────────────────────────────┘
-```
-
-### Imagini de inclus:
-- **Stânga**: `nn_learning_curves.png`
-- **Dreapta**: `nn_predictions.png` (Test Set)
-
----
-
-## Slide 8: Comparație & Analiză Statistică 📊
-
-### Layout:
-```
-┌────────────────────────────────────────────┐
-│  Comparație Modele - Analiză Statistică   │
-│                                            │
-│  ┌──────────────────┬──────────────────┐  │
-│  │  Radar Chart     │ Wilcoxon p-vals  │  │
-│  │                  │                  │  │
-│  │  [PLOT 1]        │   [PLOT 2]       │  │
-│  │                  │                  │  │
-│  └──────────────────┴──────────────────┘  │
-│                                            │
-│  RANKING (R² Score)                        │
-│  ┌────────────────────────────────────┐   │
-│  │ 🥇 [Model 1]: R² = X.XXXX         │   │
-│  │ 🥈 [Model 2]: R² = X.XXXX         │   │
-│  │ 🥉 [Model 3]: R² = X.XXXX         │   │
-│  │  4. [Model 4]: R² = X.XXXX         │   │
-│  └────────────────────────────────────┘   │
-│                                            │
-│  WILCOXON TEST                             │
-│  • [M1] vs [M2]: p=[X.XX] → Semnificativ │
-│  • [M1] vs [M3]: p=[X.XX] → Nu            │
-│                                            │
-│  Cross-Validation: 30 runs, mean ± std    │
-└────────────────────────────────────────────┘
-```
-
-### Imagini de inclus:
-- **Stânga**: `comparison_radar_chart.png`
-- **Dreapta**: `wilcoxon_pvalues_heatmap.png`
-
-### Tabel Ranking:
-Folosește emoji sau iconițe colorate pentru clasament
-
----
-
-## Slide 9: Integrare AI & Clustering 🤖
-
-### Layout:
-```
-┌────────────────────────────────────────────┐
-│  Analiză Avansată: AI & Live Data         │
-│                                            │
-│  🧠 GOOGLE GEMINI ("Senior Analyst")       │
-│  • Rapoarte generate automat               │
-│  • Context istoric și analiză brand        │
-│                                            │
-│  🧩 CLUSTERING (Unsupervised Learning)     │
-│  • K-Means: Segmentare automată (4 grupe)  │
-│  • [Mini plot: Clustering Scatter]         │
-│                                            │
-│  🌐 LIVE DATA (Yahoo Finance)              │
-│  • Preț acțiuni în timp real               │
-│  • Impact financiar curent                 │
-│                                            │
-│  Exemplu: "BMW scade cu 2% azi, risc mediu"│
-└────────────────────────────────────────────┘
-```
-
-### Elemente Cheie:
-- Subliniază cuvintele cheie: **AI**, **Clustering**, **Live**
-- Arată că proiectul e mai mult decât o simplă predicție
-- Poți pune screenshot din tab-ul "Brand Encyclopedia" sau "Data Explorer"
-
----
-
-## Slide 10: Concluzii 🎓
+## Slide 8: Concluzii 🎓
 
 ### Layout:
 ```
@@ -358,31 +193,19 @@ Folosește emoji sau iconițe colorate pentru clasament
 │                                            │
 │  🏆 MODEL CÂȘTIGĂTOR                      │
 │  ┌────────────────────────────────────┐   │
-│  │  [Model Name]                      │   │
-│  │  R² = X.XXXX  |  RMSE = X,XXX.XX  │   │
+│  │  XGBoost / Random Forest           │   │
+│  │  R² = 0.9X  |  RMSE = 2XXX $       │   │
 │  └────────────────────────────────────┘   │
 │                                            │
-│  🔑 FACTORI CHEIE PREDICTORI              │
-│  • Engine Size (dimensiune motor)          │
-│  • Curb Weight (greutate vehicul)          │
-│  • Horsepower (putere motor)               │
-│  • Make (marca vehiculului)                │
-│                                            │
-│  ✅ APLICABILITATE PRACTICĂ               │
-│  • Evaluare automată prețuri automobile   │
-│  • Platforme de vânzare second-hand       │
-│  • Sistem decizie credit auto              │
-│                                            │
-│  🚀 ÎMBUNĂTĂȚIRI VIITOARE                 │
-│  • Ensemble voting între top 3            │
-│  • Dataset mai mare pentru generalizare   │
-│  • Integrare features temporale (an)      │
+│  ✅ CE AM REALIZAT                        │
+│  • Pipeline ML complet & Validat          │
+│  • Inovație prin AI + Live Data           │
+│  • Interfață de nivel comercial           │
 │                                            │
 │            Vă mulțumesc!                   │
 │             Întrebări?                     │
 └────────────────────────────────────────────┘
 ```
-
 ### Design Special:
 - Fundal colorat sau gradient pentru secțiunea "Model Câștigător"
 - Iconițe pentru fiecare secțiune
@@ -447,7 +270,7 @@ Accent 3:        #34D399 (verde mint)
 
 ## ✅ Checklist Final PPT
 
-- [ ] 10 slides (Title + 9 conținut)
+- [ ] 8 slides (Title + 7 conținut)
 - [ ] Toate plot-urile inserate și alinate
 - [ ] Font consistent pe toate slide-urile
 - [ ] Numerele reale completate (R², RMSE, etc.)
