@@ -1,4 +1,4 @@
-# 🚗 Advanced Auto Analytics Platform (2025 Edition)
+# 🚗 Advanced Auto Analytics Platform (2026 Edition)
 
 Un sistem complet de inteligență artificială pentru piața auto, care combină **Machine Learning Predictiv**, **Analiză Financiară Live** și **Generative AI** pentru o perspectivă 360°.
 
