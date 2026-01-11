@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pkl
+.idea/
+.venv/
+outputs/
+metrics.csv
+*.png

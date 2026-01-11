@@ -1,0 +1,597 @@
+=== 1. Introduction to ML.pdf ===
+Ruxandra Stoean
+rstoean@inf.ucv.ro
+ruxandra.stoean@e-uvt.ro
+Introduction to Machine Learning
+Intelligent machine
+ A machine that can be programmed to act like a human
+ A machine that can be taught to learn like a human
+
+What is Machine Learning?
+Definitions
+ “The field of study that gives computers the ability to 
+learn without being explicitly programmed.”                  
+– Arthur Samuel (1959)
+ “A computer program is said to learn from experience E 
+with respect to some class of tasks T and performance 
+measure P , if its performance at tasks in T , as measured 
+by P , improves with experience E.”                                   
+– Tom M. Mitchell (1999) 
+ “A subset of artificial intelligence focused on developing algorithms and
+statistical models that enable computers to learn from data and improve
+their performance on specific tasks without explicit programming.
+ It involves collecting and preparing data, designing mathematical models,
+training the models on labeled data, evaluating their performance on new
+data, and deploying them for predictions or decision-making.
+ It encompasses supervised learning (learning from labeled data),
+unsupervised learning (discovering patterns in unlabeled data), and
+reinforcement learning (learning through interaction with an
+environment).
+ Its applications span a wide range of fields, revolutionizing technology
+and problem-solving across domains like image recognition, natural
+language processing, recommendation systems, and autonomous
+vehicles.”
+– ChatGPT
+https://stablediffusionweb.com/
+
+Applications. Autonomous vehicles
+ Waymo from Google
+ https://www .youtube.com/watch?v=0kJPDg207oc
+ Microsoft
+ https://www .youtube.com/watch?v=zkfrkgtrLdo
+Medical diagnosis support
+ MedGemma - Hugging Face
+ Image classification, text analysis, report generation, patient triage
+ https://huggingface.co/spaces/google/appoint-ready
+ Microsoft AI Diagnostic Orchestrator (MAI-DxO)
+ 304 initial real cases from the New England Jou
+
+=== 2. Supervised learning. Linear models.pdf ===
+Ruxandra Stoean
+Supervised learning. Linear models
+Supervised learning
+ Concept
+ Input data with available output values
+ Learn the input – output association
+ Prediction on the target of new data
+ Classification
+ Output grouped in two or more classes
+ Qualitative output (discrete, factor, categorical, ordered 
+categorical)
+ Prediction on the class of new data
+ Regression
+ Quantitative output (continuous)
+ Prediction on the target numerical value for new input
+Classification
+A
+A
+B
+?
+Input Output
+Association
+Regression
+0.2
+?
+Input Output
+Association
+0.4
+0.9
+Classification, 
+regression
+Training data (known 
+output)
+T est data 
+(unknown output)
+ModelLearning
+P
+r
+e
+d
+i
+c
+t
+i
+o
+n
+Supervised learning
+ A data set - pairs of the type (input, output)
+ The input is a sequence of values for the data attributes
+ The output is a confirmed decision
+ Every record (object, example, vector) is described by a number 
+of attributes with values from a discrete or continuous domain.
+ The targets are either all discrete (classification), or continuous 
+(regression).
+Definitions
+ Given a data set of m records {x1, x2, …, xm}, where 
+ every data point is defined by n attributes 𝐱𝐢 ∈ 𝑅𝑛 
+ each has an associated outcome y1, …, ym
+ Discrete outcome y -> classification
+ Continuous outcome y -> regression
+ A supervised learning task is to build a model that 
+ learns the association between x and y
+ and predicts the outcome for new data points.
+The model and the data
+ The data set is split in three distinct subsets:
+ The training set
+ The validation set
+ The test set (data output is hidden)
+ The algorithm learns the association between every training data 
+point and its output (training phase).
+ The obtained model: 
+ tested on the validation set to measure its prediction error
+ Parameter tuning
+ Variable selection
+ tested on the test set to assess the generalization ability
+TESTTRAINING VALIDATION
+The loss function
+ Loss measures how much the model learns the I
+
+=== 3. Support vector machines.pdf ===
+Support vector machines (SVM)
+Ruxandra Stoean
+Additional bibliography
+ Simon O. Haykin , Neural Networks and Learning Machines
+(3rd Edition), Prentice Hall, 2008
+ Bernhard Scholkopf, Alexander J. Smola, Learning with
+Kernels: Support V ector Machines, Regularization,
+Optimization, and Beyond, MIT Press, 2018
+ Catalin Stoean, Ruxandra Stoean, Support V ectorMachines
+and Evolutionary Algorithms for Classification: Single or
+T ogether?,Intelligent Systems Reference Library,Volume 69,
+Springer, 2014.
+What is an SVM?
+ V erypowerful tools in:
+ Classification
+ Handwriting recognition
+ Object recognition
+ Speech recognition
+ T ext categorization
+ Generically binary – methods to extend to
+more classes
+ Regression
+ A type of supervised learning machine
+• Training phase: learning 
+(example   ->   label)
+• Test phase: prediction
+(new example  ->     ?)
+Binary classification
+ A training data set
+ A family of functions
+ Find parameters t to learn the optimal correspondence between
+every x and y
+xi yi (-1 or 1)f
+t
+ miii yx ,...,2,1)},( =
+n
+i Rx 
+}1,1{ +−iy
+ Ttft |
+}1,1{: +−→ n
+tf
+Learning within SVM
+Linear separable
+Linear non-separable
+Linear support vector machines
+Nonlinear support vector machines
+denotes   +1
+denotes   -1
+Linear support vector machines
+x = Number of tasks solved for homework
+y = Hours 
+spent on 
+final 
+project
+Problem: Will I get a good mark in this exam? Y es
+No
+Linear SVM for separable data
+How can
+these data be
+classified?
+Any of these could be
+good…
+But which one is the
+best?
+denotes   +1
+denotes   -1
+Linear SVM for separable data
+How can
+these data be
+classified?
+Any of these could be
+good…
+But which one is the
+best?
+denotes   +1
+denotes   -1
+Problem: Many solutions! 
+Some very bad.
+Task: From available data, 
+select the hyperplane that 
+separates well “in general”
+Linear SVM for separable data
+The existence of a hyperplane of 
+separation with the equation:
+0, =− bxw
+w
+w
+b
+ 0| =− bxwx
+denotes   +1
+denotes   -1
+• w – vector of weig
+
+=== 4. Neural networks.pdf ===
+Ruxandra Stoean
+Neural networks (NN)
+Additional bibliography
+ Simon O. Haykin , Neural Networks and Learning Machines 
+(3rd Edition), Prentice Hall, 2008
+ Charu C. Aggarwal, Neural Networks and Deep Learning: A 
+T extbook, Springer, 2018
+ Christopher M. Bishop, Neural Networks for Pattern 
+Recognition, Oxford University Press, 1996
+Modelling the human brain
+ Artificial neural networks simulate the mode of neural 
+interaction within the human brain, directed towards 
+learning:
+ Base units – neurons
+ Connections between them – synapses
+ The intensities (weights) of the synapses determine the 
+performance of learning.
+
+Artificial neuron McCulloch-Pitts
+ x – input vector
+ w – synaptic 
+weights
+ b – bias
+x1
+x2
+xn
+𝑧 = 𝑤 ∙ 𝑥 + 𝑏
+w1
+w2
+wn
+ z – linear combination unit
+ 𝜑 – activation function of the neuron
+ Output 
+𝜑(𝑧)
+𝜑(𝑧)
+Structure of a neural network
+ Input neurons (units) – input layer (input data attributes)
+ Hidden neurons in the black-box of learning (inside data 
+components to be learnt)
+ In one or more hidden layers
+ The output of a layer becomes the input for the next layer
+ Output neurons – output layer (network output - classes/response)
+ The (supervised) learning starts from the problem data and 
+optimizes the weights of the neurons on the base of the difference 
+between the predicted and the real response.
+Simple NN architecture
+Input layer
+Hidden layer
+Output layer
+ Example with 1 hidden 
+layer, 3 input neurons, 4 
+units in the hidden layer and 
+1 output
+General NN architecture
+https://stanford.edu/~shervine/teaching/cs-229
+NN Flow
+ Batches of input data are given in the input layer
+ Batch size – amount of data passed in one forward pass iteration
+ Neurons are multiplied by their weights
+ The product is further transformed by the activation function
+ The new collection of neurons are fed to the next layer
+ The output of the last layer – the prediction – is compared to the 
+output -> the loss -> to be minimized
+ W eights are initiall
+
+=== 5.1 Decision trees.pdf ===
+Ruxandra Stoean
+Decision Trees (DT)
+Additional bibliography
+ Leo Breiman, Jerome Friedman, Charles J. Stone, R.A.
+Olshen, Classification and Regression Trees, Chapman and
+Hall/CRC, 1984
+ Clinton Sheppard, Tree-based Machine Learning Algorithms:
+DecisionTrees,Random Forests, and Boosting, 2017
+ Lior Rokach, Oded Maimon, Data Mining with Decision Trees:
+Theory and Applications (Second Edition), W orldScientific,
+2014
+Introduction
+ V ery appreciated technique :
+ Possibility to visualize the model learning the data
+ White-box learning, as opposed to support vector machines, 
+neural networks (black box)
+ Data type independent
+ The learning procedure: 
+ Training data are recursively partitioned
+ Process stops when homogeneous terminal nodes are obtained 
+(classes for classification or thresholds for regression)
+
+Algorithms
+ ID3 – categorical features; greedy split by largest
+information gain for classification; pruning after tree
+completion
+ C4.5 – in addition, also for continuous features, by
+partitioning into discrete intervals; output converted to IF-
+THEN rules, rule accuracy gives order of application
+ C5.0 – increased accuracy; smaller rule sets
+ CART – in addition, also for regression; no rule sets
+DT structure
+ Every internal node expresses a test in relation to an 
+attribute of the problem, which partitions the objects.
+ Attributes: discrete or continuous
+ If continuous, a threshold is used for partitioning
+ Every edge signifies the partition resulting after the 
+application of the test that corresponds to that node
+ T erminal (leaf) nodes represent the dominant class/group 
+that resulted on that branch
+Node split criterion
+ The measure of an efficient partitioning of the data in the 
+current node, on the basis of a pair (attribute, value), is given 
+by the following criteria: 
+ Classification
+ Gini index -> minimum
+ CART
+ Information gain -> maximum
+ i.e., entropy -> minimum
+ ID3, C4.5, C5.0
+ Regression
+ Sum of squared errors
+Algorith
+
+=== 5.2 Ensemble methods.pdf ===
+Ensemble learning
+Ruxandra Stoean
+Further bibliography
+ Leo Breiman, Bagging Predictors, Machine Learning , vol. 24,
+issue 2, pp. 123-140, 1996
+ Y oav Freund, Rober E. Schapire, Experiments with a new
+boosting algorithm, 13th International Conference on Machine
+Learning, 148–156,Morgan Kaufmann, 1996
+ Leo Breiman, Random Forests, Machine Learning 45(1), 5-32,
+2001.
+ Gautam Kunapuli, Ensemble Methods for Machine Learning,
+Manning, 2023
+Ensemble learning
+ Several base learners are trained and their predictions are
+combined.
+ The way of application of the learners may take place at
+several levels.
+ Classical approaches:
+ Bagging
+ Boosting
+ Random forests
+medium.com
+Bagging
+ Short for Bootstrap AGGregatING.
+ The training data set of m samples is split into b parts (bags).
+ Every subset has the same number of m elements.
+ The data from each subset are sampled with replacement.
+ The base learner is trained on each subset.
+ The b constructed models vote the output for new test data:
+ The mean of the outputs for the b models - for regression
+ The class with most appearances in the predictions of the b models - 
+for classification
+ Examples not selected (out-of-bag) are used to estimate the
+generalization error.
+Package R ipred
+ The base learner is a decision tree (bagged tree).
+ In this sense package rpart is called.
+ If the output is seen as factor, classification is considered.
+ If it is continuous, regression is in place.
+ Parameter nbagg specifies the desired number of bags – default 
+25.
+ m samples are taken in each bag
+ Parameter coob=true specifies the scope to compute an 
+estimation of the generalization error (out-of-bag estimation)
+Code
+
+Result
+
+Python. Data processing WDBC
+ For the Wisconsin original data set with 9 attributes and 699 
+records, we will have to read the .csv file.
+ In the collection available from UCI, missing values are 
+denoted by ‘?’
+ Their transformation to 0 will be performed through the use 
+of applymap and the a
+
+=== 6. Performance evaluation.pdf ===
+Performance evaluation
+Ruxandra Stoean
+Further bibliography
+ N. Japkowicz, M. Shah, Evaluating Learning Algorithms,
+Cambridge University Press, 2011
+ T. Hastie, R. Tibshirani, J. Friedman, The Elements of
+Statistical Learning, Springer Series in Statistics, 2001
+ C. Huyen, Designing Machine Learning Systems: An Iterative 
+Process for Production-Ready Applications, O'Reilly, 2022
+Directions
+ Performance measures
+ Classification
+ Regression
+ Error estimation
+ Statistical significance
+Accuracy / Error rate
+ The two complementary measures give an insight over the 
+general performance.
+ Accuracy is computed as the ratio between the amount of data 
+labelled correctly and the total number of examples 
+ The error rate is the ratio between the amount of samples labelled 
+incorrectly and the total number of samples
+ Disadvantages in the cases when:
+ Data with class imbalance
+ Different misclassification costs for each class
+Confusion matrix
+ For k classes, a matrix of k × k
+ The element at position (i, j) gives the amount of data of class 
+i that the classifier labels as j
+ Generically, for two classes (positive and negative labels)
+ N = TN + FP , P = FN + TP
+Predicted negative Predicted positive
+Real negative True negative (TN) False positive (FP)
+Real positive False negative (FN) True positive (TP)
+Performance measures for a single 
+class of interest 1/2
+ Class of interest denoted by the positive.
+ True-positive rate (TPR) gives the proportion of data of class 
+i that are also labelled as i by the classifier.
+ 𝑇𝑃𝑅=
+𝑇𝑃
+𝑇𝑃+𝐹𝑁
+ False-positive rate (FPR) – proportion of data that do not 
+belong to class i but are labelled with that class.
+ 𝐹𝑃𝑅=
+𝐹𝑃
+𝐹𝑃+𝑇𝑁
+Performance measures for a single 
+class of interest 2/2
+ In the binary case, the two measures can be also defined for the 
+opposite, negative class.
+ True-negative rate 𝑇𝑁𝑅 =
+𝑇𝑁
+𝑇𝑁+𝐹𝑃
+ False-negative rate 𝐹𝑁𝑅 =
+𝐹𝑁
+𝐹𝑁+𝑇𝑃
+ TPR is also called sensitivity (or recall).
+ TNR is also named specificity.
+Like
+
+=== 7. Feature selection & parameter tuning.pdf ===
+Feature selection & parameter tuning
+Ruxandra Stoean
+Further bibliography
+ M. Kuhn, K. Johnson, Feature Engineering and Selection
+(Chapman & Hall/CRC Data Science Series), Chapman & 
+Hall/CRC Data Science Series, 2021
+ V . Bolón-Canedo, A. Alonso-Betanzos, Recent Advances in 
+Ensembles for Feature Selection, Intelligent Systems Reference
+Library, Springer, 2018
+ E. Bartz, T . Bartz-Beielstein, M. Zaefferer, O. Mersmann, 
+Hyperparameter Tuning for Machine and Deep Learning with R: 
+A Practical Guide, Springer, 2023
+ L. Owen, Hyperparameter Tuning with Python: Boost your
+machine learning model's performance via hyperparameter 
+tuning, Packt Publishing, 2022
+Feature selection
+Feature selection
+ Data could have 10 000 descriptive features
+ Their number should be reduced to 1000 (or 100) to apply a
+model
+ Which 1000 attributes should be kept?
+ This is feature selection
+Features (independent variables) Dependent variable
+Why needed?
+doi:10.3966/199115592017062803014
+ Sometimes performance decreases when the number of features 
+is high
+ The curse of dimensionality 
+ The space volume increases rapidly, data become sparse
+ More data samples will be needed
+Increase in noise
+ Some additional features can only increase noise
+ E.g. other features in Pima diabetes: favorite music, hair color
+ Models could guide learning towards the new attributes
+ They could find correlations only true for the training set, and 
+not generalizable to new data
+ More features imply more complex models
+ More weights for a neural network
+ More nodes in decision trees
+ More trees in random forests etc.
+ Increased search space => harder search
+Reasons for feature selection
+ T o improve performance (in terms of accuracy, speed)
+ For data vizualization, if possible
+ T o reduce dimensionality and eliminate noise
+ Simpler models are easier to interpret
+ Better generalization by reducing overfitting
+ Variable redundancy
+ Feature selection is the process of choosing an (almost) opt
+
+=== Deep learning. Convolutional neural networks, transfer, semantic segmentation, generative.pdf ===
+Ruxandra Stoean
+Deep learning for image processing
+
+Further bibliography
+ Ian Goodfellow et al, Deep Learning (Adaptive Computation and Machine 
+Learning series), MIT Press, 2016 http://www .deeplearningbook.org/
+ John Kelleher, Deep Learning (MIT Press Essential Knowledge series), 2019
+ Charu Aggarwal, Neural Networks and Deep Learning: A T extbook 2nd ed, 
+Springer, 2023
+ Aston Zhang et al, Dive into Deep Learning, Cambridge University Press, 
+2023
+ Simon Prince, Understanding Deep Learning, MIT Press, 2023
+ Jonah Gamba, Deep Learning Models, A Practical Approach for Hands-On 
+Professionals, 2024
+
+https://www .kdnuggets.com/2017/08/first-steps-learning-deep-learning-image-classification-keras.html
+Definitions
+ “For most flavors of the old generations of learning algorithms … performance will plateau. … deep 
+learning … is the first class of algorithms … that is scalable. … performance just keeps getting better as 
+you feed them more data.” - Andrew Ng
+ “The hierarchy of concepts allows the computer to learn complicated concepts by building them out of 
+simpler ones. If we draw a graph showing how these concepts are built on top of each other, the graph is deep, 
+with many layers. For this reason, we call this approach to AI deep learning.” – Ian Goodfellow
+ “Deep learning [is] … a pipeline of modules all of which are trainable. … deep because [has] multiple 
+stages in the process of recognizing an object and all of those stages are part of the training” -Yann LeCun
+ “At which problem depth does Shallow Learning end, and Deep Learning begin? Discussions with DL experts 
+have not yet yielded a conclusive response to this question. […], let me just define for the purposes of this 
+overview: problems of depth > 10 require Very Deep Learning. ” - Jurgen Schmidhuber
+https://machinelearningmastery.com/what-is-deep-learning/
+
+“The more I read, the more I acquire, 
+the more certain I am that I know nothing.”
+― V oltaire
+
+Frameworks for implementing deep learning
+
+
+=== Deep learning. Recurrent networks & transformers.pdf ===
+Ruxandra Stoean
+Deep learning for time series and text processing. 
+Recurrent networks and transformers
+Further bibliography
+ A. K.Tyagi, A. Abraham, Recurrent Neural Networks: Concepts and Applications, CRC 
+Press, 2022
+ F. M. Salem, Recurrent Neural Networks: From Simple to Gated Architectures, Springer, 
+2022
+ D. Rothman, Transformers for Natural Language Processing: Build, train, and fine-tune 
+deep neural network architectures for NLP with Python, Hugging Face, and OpenAI's 
+GPT-3, ChatGPT , and GPT-4, Packt, 2022
+ S. Ozdemir, Quick Start Guide to Large Language Models: Strategies and Best Practices 
+for Using ChatGPT and Other LLMs, Addison-W esley, 2023
+ S. Raschka, Build a Large Language Model (From Scratch), Manning, 2024
+Recurrent networks
+The persistence of memory
+ Traditional neural networks (NN) unable to remember 
+information collected over time
+ Consequent appearance of recurrent neural networks (RNN)
+ Short-term memory
+ Long short-term memory networks (LSTM)
+ Gated recurrent units (GRU)
+ W eights shared across time
+ Loss of all time steps is the summed loss at each time step
+ Backpropagation at each time step, considering the previous 
+time steps
+
+LSTM
+ S. Hochreiter& J. Schmidhuber, Neural Computation, 1997
+ Applications to speech and text prediction, video action recognition, time series 
+prediction
+ Capable of learning long-term dependencies in the data
+ Chain-like structure with a repeating module of interacting neural layers
+ xt – input, ht – hidden state output
+ Concentrate on the relevant information through its gates that decide which to keep
+https://colah.github.io/
+1. The cell state
+ Similar to a “conveyer belt” where the transport “products” = information for the 
+network
+ Information can be added to or removed from the cell state through gates.
+https://colah.github.io/
+2. Gates
+ A sigmoid NN layer + a multiplication pointwise operation
+ The sigmoid has an output in the interval [0, 1] giving the amount of informatio
+

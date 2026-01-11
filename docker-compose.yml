@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    image: auto-predictor:latest
+    container_name: auto_predictor_app
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./.env:/app/.env # Pass the secrets file
+      - ./data:/app/data # Persist the database
+      - ./models:/app/data/models # Persist trained models
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
