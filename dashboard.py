@@ -207,7 +207,7 @@ if page == "Data Explorer":
         st.caption("Preț vs Risc (Normalized Losses)")
         fig_risk = px.scatter(df, x="normalized-losses", y="price", color="make", 
                               title="Riscuri ridicate (Dreapta) vs Preț", hover_data=['make'])
-        st.plotly_chart(fig_risk, use_container_width=True)
+        st.plotly_chart(fig_risk, width="stretch")
         
     st.info("ℹ️ **Safety Index**: Calculat pe baza greutății și istoricului de daune (Normalized Losses).")
     st.markdown("---")
@@ -221,7 +221,7 @@ if page == "Data Explorer":
     df_plot = df.dropna(subset=[x_axis, y_axis, 'price', 'body-style'])
     
     fig = px.scatter(df_plot, x=x_axis, y=y_axis, color="body-style", size="price", hover_data=['make'])
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     
     # --- UNSUPERVISED LEARNING SECTION (BONUS) ---
     st.markdown("---")
@@ -270,7 +270,7 @@ if page == "Data Explorer":
                               title=f"Segmentare Automată a Pieței (K={k})",
                               color_discrete_sequence=px.colors.qualitative.Bold)
                               
-        st.plotly_chart(fig_clus, use_container_width=True)
+        st.plotly_chart(fig_clus, width="stretch")
         
         # Cluster Interpretation
         st.info(f"💡 Interpretare: K-Means a descoperit natural categoriile (ex: Mașini Economice, Sport, Lux) fără a i se spune ce sunt.")
@@ -328,7 +328,7 @@ elif page == "Detailed Statistics":
         residuals = model.resid
         fig = px.scatter(x=model.fittedvalues, y=residuals, labels={'x': 'Predicted Price', 'y': 'Residuals'}, title="Residuals vs Fitted")
         fig.add_hline(y=0, line_dash="dash", line_color="red")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         
     else:
         st.warning("Te rog selectează cel puțin o variabilă predictor.")
@@ -491,11 +491,11 @@ elif page == "Model Performance":
         # Comparision Chart
         st.subheader("Comparare R2 Score")
         fig = px.bar(metrics_df, x='Model', y='R2', color='Model', range_y=[0, 1])
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         
         st.subheader("Comparare RMSE (Eroare)")
         fig = px.bar(metrics_df, x='Model', y='RMSE', color='Model')
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         
     else:
         st.warning("Nu există rezultate salvate. Rulează pipeline-ul de antrenare mai întâi.")
@@ -620,7 +620,8 @@ elif page == "Live Prediction":
 elif page == "🤖 AI Assistant":
     import google.generativeai as genai
     from src.config import GEMINI_API_KEY
-    from src.financial.engine import GrokModel, GPT2Model
+    # AI Models (Moved to dl_models for lazy loading)
+    from src.financial.dl_models import GrokModel, GPT2Model
     import os
     
     st.title("🤖 Advanced Auto Assistant")
@@ -804,6 +805,37 @@ elif page == "Financial Analysis":
     
     st.title("📈 Financial Analysis & AI Prediction")
     st.markdown("### Professional Stock Analysis Platform")
+
+    # --- NEW: Model Architecture History (Visual) ---
+    with st.expander("📜 Istoric Arhitecturi AI & Modele (Evolution Timeline)", expanded=False):
+        st.markdown("""
+        ### Evoluția Sistemului de Predicție
+        Această secțiune prezintă istoricul algoritmilor implementați în sistemul nostru, de la metode statistice clasice la Deep Learning modern.
+        """)
+        
+        history_data = [
+            {"An": 1763, "Model": "NaiveBayes", "Tip": "Statistic / ML", "Descriere": "Probabilistic classifier bazat pe teorema lui Bayes."},
+            {"An": 1906, "Model": "MarkovChain", "Tip": "Statistic / AI Secvențial", "Descriere": "Model stochastic pentru sisteme care schimbă stări."},
+            {"An": 1972, "Model": "Prolog", "Tip": "AI Simbolic / Logic", "Descriere": "Programare logică pentru raționament bazat pe reguli."},
+            {"An": 1986, "Model": "NeuralNetwork", "Tip": "Deep Learning / MLP", "Descriere": "Rețele neuronale feed-forward cu backpropagation."},
+            {"An": 1997, "Model": "LSTM", "Tip": "Deep Learning / Secvențial", "Descriere": "Long Short-Term Memory pentru serii de timp lungi."},
+            {"An": 2001, "Model": "RandomForest", "Tip": "ML Clasic / Ensemble", "Descriere": "Ansamblu de arbori de decizie pentru robustețe."},
+            {"An": 2014, "Model": "GRU", "Tip": "Deep Learning / Secvențial", "Descriere": "Gated Recurrent Unit, alternativă eficientă la LSTM."},
+            {"An": 2016, "Model": "TCN", "Tip": "Deep Learning / Secvențial", "Descriere": "Temporal Convolutional Networks pentru serii de timp."},
+            {"An": 2017, "Model": "Transformer", "Tip": "Deep Learning Modern", "Descriere": "Arhitectură bazată pe mecanisme de atenție (Self-Attention)."},
+            {"An": 2024, "Model": "Grok AI", "Tip": "LLM / Generative AI", "Descriere": "Model de limbaj avansat de la xAI pentru analiză contextuală."}
+        ]
+        
+        st.dataframe(
+            pd.DataFrame(history_data).set_index("An"),
+            width="stretch",
+            column_config={
+                "Model": st.column_config.TextColumn("Model", help="Numele arhitecturii"),
+                "Tip": st.column_config.TextColumn("Categorie", width="medium"),
+                "Descriere": st.column_config.TextColumn("Detalii Tehnice", width="large"),
+            }
+        )
+
     
     # Initialize Coordinator
     @st.cache_resource
@@ -841,12 +873,13 @@ elif page == "Financial Analysis":
         symbol_input = option_to_symbol[selected_option]
         
     with col_in2:
+        deep_analysis = st.checkbox("Analiză Deep Learning", help="Include modele complexe (LSTM, Transformer). Durează mai mult.")
         analyze_btn = st.button("Analizează 🚀", use_container_width=True)
         
     if analyze_btn or symbol_input:
         with st.spinner(f"Processing Analysis for {selected_option}..."):
             try:
-                result = coordinator.analyze_company(symbol_input)
+                result = coordinator.analyze_company(symbol_input, fast_mode=not deep_analysis)
                 
                 if "error" in result:
                     st.error(result["error"])
@@ -889,7 +922,7 @@ elif page == "Financial Analysis":
                             plot_bgcolor='rgba(0,0,0,0)',
                             font=dict(color="#f3f4f6")
                         )
-                        st.plotly_chart(fig, use_container_width=True)
+                        st.plotly_chart(fig, width="stretch")
                         
                     with c_pred:
                         st.subheader("🤖 Model Signals")
@@ -910,7 +943,7 @@ elif page == "Financial Analysis":
                         # Styled dataframe
                         st.dataframe(
                             pd.DataFrame(pred_data).set_index("Model"), 
-                            use_container_width=True,
+                            width="stretch",
                             column_config={"Signal": st.column_config.TextColumn("Signal", width="medium")}
                         )
                         
@@ -987,6 +1020,95 @@ elif page == "Financial Analysis":
                                     mime="application/pdf"
                                 )
                                 st.success("Ready!")
+
+                    # --- NEW: Live Performance Evaluation ---
+                    st.markdown("---")
+                    st.subheader("📊 Live Performance Evaluation (Backtest)")
+                    
+                    with st.expander("Show Detailed Model Metrics (Terminal Output Replicated)", expanded=True):
+                        if st.button("▶️ Rulează Evaluarea Completă (Backtest 50 Zile)"):
+                            with st.spinner("Rulare Backtest și Calcule Statistice (poate dura 10-20 secunde)..."):
+                                # Replicating verify_financial.py logic adapted for Streamlit
+                                from src.financial.engine import RFModel, NaiveBayesTabular, ModelEvaluationOrchestrator
+                                from src.financial.dl_models import NNModel
+                                
+                                # Prepare data
+                                predictor = coordinator.predictor # Access predictor from coordinator
+                                X_eval, y_true_eval = predictor.tab_builder.construieste_dataset(result['data'])
+
+                                if len(X_eval) > 60:
+                                    X_test = X_eval[-50:]
+                                    y_true = y_true_eval[-50:]
+                                    X_train_eval = X_eval[:-50]
+                                    y_train_eval = y_true_eval[:-50]
+
+                                    # Train Models (Quick versions)
+                                    status_text = st.empty()
+                                    status_text.text("Training RandomForest...")
+                                    model_rf = RFModel()
+                                    model_rf.train(X_train_eval, y_train_eval)
+
+                                    status_text.text("Training NaiveBayes...")
+                                    model_nb = NaiveBayesTabular()
+                                    model_nb.train(X_train_eval, y_train_eval)
+
+                                    status_text.text("Training NeuralNetwork...")
+                                    model_nn = NNModel(input_dim=X_eval.shape[1])
+                                    model_nn.train(X_train_eval, y_train_eval)
+                                    
+                                    status_text.text("Calculating Metrics...")
+
+                                    dict_predictii = {
+                                        "RandomForest": model_rf.predict(X_test),
+                                        "NaiveBayes": model_nb.predict(X_test),
+                                        "NeuralNetwork": model_nn.predict(X_test)
+                                    }
+
+                                    orchestrator = ModelEvaluationOrchestrator()
+                                    
+                                    # We need to capture the print output OR modify orchestrator to return df.
+                                    # Since orchestrator prints, we can capture stdout or simply stick to the returned dict
+                                    # Returning dict is cleaner for UI
+                                    
+                                    metrics_res = orchestrator.evalueaza_complet(
+                                        y_true=y_true,
+                                        predictions_dict=dict_predictii,
+                                        output_dir=f"evaluare_ui_{symbol_input}"
+                                    )
+                                    status_text.empty()
+                                    
+                                    # Display Results nicely
+                                    st.success("Evaluare Finalizată!")
+                                    
+                                    # 1. Main Metrics Table
+                                    metrics_rows = []
+                                    for m_name, m_vals in metrics_res.items():
+                                        row = {"Model": m_name}
+                                        row.update({k: v for k,v in m_vals.items() if isinstance(v, (int, float, np.number))})
+                                        metrics_rows.append(row)
+                                        
+                                    metrics_df_disp = pd.DataFrame(metrics_rows).set_index("Model")
+                                    # Select key cols
+                                    key_cols = ['accuracy', 'f1_macro', 'precision_macro', 'recall_macro', 'directional_accuracy', 'cumulative_profit']
+                                    st.dataframe(metrics_df_disp[key_cols].style.format("{:.4f}"), width="stretch")
+                                    
+                                    # 2. Confusion Matrices (Visual)
+                                    st.markdown("##### Confusion Matrices")
+                                    cm_cols = st.columns(len(metrics_res))
+                                    for idx, (m_name, m_vals) in enumerate(metrics_res.items()):
+                                        with cm_cols[idx]:
+                                            st.write(f"**{m_name}**")
+                                            cm = m_vals['confusion_matrix']
+                                            fig_cm = px.imshow(cm, text_auto=True, color_continuous_scale='Blues',
+                                                               x=['SELL', 'HOLD', 'BUY'], y=['SELL', 'HOLD', 'BUY'],
+                                                               title=f"Acc: {m_vals['accuracy']:.2f}")
+                                            st.plotly_chart(fig_cm, width="stretch")
+                                    
+                                    st.info("Check 'evaluare_ui_...' folder for generated plots.")
+                                    
+                                else:
+                                    st.warning("Not enough data for 50-day backtest.")
+
 
             except Exception as e:
                 st.error(f"Eroare procesare: {e}")

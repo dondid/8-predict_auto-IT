@@ -17,20 +17,23 @@ from scipy.stats import friedmanchisquare, wilcoxon
 from statsmodels.stats.contingency_tables import mcnemar
 from dotenv import load_dotenv
 
-# MACHINE LEARNING (Scikit-Learn)
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.naive_bayes import GaussianNB
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import (
-    accuracy_score, precision_score, recall_score, f1_score,
-    confusion_matrix, matthews_corrcoef, cohen_kappa_score, balanced_accuracy_score
-)
+# IMPORTS MOVED FOR LAZY LOADING
+# import numpy as np # Keep numpy/pandas/requests as they are relatively light or essential
+# import pandas as pd
+# import requests
+# import yfinance as yf
+# ...
 
-# DEEP LEARNING (PyTorch & Transformers)
-import torch
-import torch.nn as nn
-from torch.utils.data import DataLoader, TensorDataset
-from transformers import GPT2LMHeadModel, GPT2Tokenizer
+# MACHINE LEARNING (Scikit-Learn) - MOVED TO CLASSES
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, matthews_corrcoef, cohen_kappa_score, balanced_accuracy_score
+# DEEP LEARNING (PyTorch & Transformers) - MOVED TO CLASSES
+# But torch/nn needed for class inheritance
+# IMPORTS CLEANED FOR VISUALIZATION/MATH
+# import torch -> MOVED TO dl_models.py
+# import torch.nn as nn -> MOVED TO dl_models.py
+# from torch.utils.data -> MOVED TO dl_models.py
+
 
 # VIZUALIZARE DATE
 import matplotlib.pyplot as plt
@@ -515,58 +518,29 @@ class MLDatasetBuilder_Sequence:
 # MODELE DATE TABELARE
 class RFModel:
     def __init__(self):
-        self.model = RandomForestClassifier(n_estimators=300, random_state=42)
+        # Model initialized lazily in train
+        pass
 
     def train(self, X_train, y_train):
+        from sklearn.ensemble import RandomForestClassifier
+        if not hasattr(self, 'model'):
+            self.model = RandomForestClassifier(n_estimators=300, random_state=42)
         self.model.fit(X_train, y_train)
 
     def predict(self, X):
         return self.model.predict(X)
 
 
-class NNModel:
-    def __init__(self, input_dim):
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model = nn.Sequential(
-            nn.Linear(input_dim, 64),
-            nn.ReLU(),
-            nn.Linear(64, 32),
-            nn.ReLU(),
-            nn.Linear(32, 3),
-        ).to(self.device)
-        self.criterion = nn.CrossEntropyLoss()
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=0.001)
-
-    def train(self, X_train, y_train, epochs=30, batch_size=32):
-        X_tensor = torch.tensor(X_train, dtype=torch.float32).to(self.device)
-        y_tensor = torch.tensor(y_train + 1, dtype=torch.long).to(self.device)  # -1->0,0->1,1->2
-
-        dataset = TensorDataset(X_tensor, y_tensor)
-        if len(dataset) > 0:
-            loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-    
-            self.model.train()
-            for _ in range(epochs):
-                for xb, yb in loader:
-                    self.optimizer.zero_grad()
-                    loss = self.criterion(self.model(xb), yb)
-                    loss.backward()
-                    self.optimizer.step()
-
-    def predict(self, X):
-        self.model.eval()
-        X_tensor = torch.tensor(X, dtype=torch.float32).to(self.device)
-        with torch.no_grad():
-            outputs = self.model(X_tensor)
-            preds = torch.argmax(outputs, axis=1).cpu().numpy() - 1  # 0->-1,1->0,2->1
-        return preds
+# NNModel removed - replaced by dl_models.py import in usage functions.
 
 
 class NaiveBayesTabular:
     def __init__(self):
-        self.model = GaussianNB()
+        pass
 
     def train(self, X, y):
+        from sklearn.naive_bayes import GaussianNB
+        self.model = GaussianNB()
         self.model.fit(X, y)
 
     def predict(self, X):
@@ -599,163 +573,20 @@ class MarkovChainModel:
 
 
 # MODELE SECVENȚIALE
-class LSTMModel(nn.Module):
-    def __init__(self, input_dim, hidden_dim=64, num_layers=2):
-        super().__init__()
-        self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers, batch_first=True)
-        self.fc = nn.Linear(hidden_dim, 3)
+# Note: torch.nn.Module needs torch to be imported at class definition time if we inherit from it?
+# Yes, standard python MRO requires base class to be defined.
+# So we MUST import torch and nn at top level for class definitions OR define the classes inside a function/factory.
+# Or use a conditional import at top level but that doesn't save much if we use the classes.
+# However, if we only instantiate them when needed, we can keep the imports at top level but make them 'lazy' by wrapping in try/except or just keeping them.
+# BETTER APPROACH: Keep torch/nn imports for class definitions but ensure other heavy imports are lazy.
+# Actually, torch/transformers ARE the heavy imports.
+# To make class inheritance work, we can import torch at top level but maybe standard imports are fast enough if we didn't import the WHOLE library structure?
+# No, 'import torch' is heavy.
+# Temporary solution: Wrap classes that inherit from nn.Module inside a function or check if we can define them without inheriting until runtime? No.
+# Only solution: Keep torch imported but ensure we don't do heavy initializing ops at module level.
+# AND optimize the training loop (fast_mode).
 
-    def forward(self, x):
-        out, _ = self.lstm(x)
-        out = out[:, -1, :]
-        return self.fc(out)
-
-
-class GRUModel(nn.Module):
-    def __init__(self, input_dim, hidden_dim=64, num_layers=2):
-        super().__init__()
-        self.gru = nn.GRU(input_dim, hidden_dim, num_layers, batch_first=True)
-        self.fc = nn.Linear(hidden_dim, 3)
-
-    def forward(self, x):
-        out, _ = self.gru(x)
-        out = out[:, -1, :]
-        return self.fc(out)
-
-
-class TCNBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size=3, dilation=1):
-        super().__init__()
-        self.conv = nn.Conv1d(
-            in_channels,
-            out_channels,
-            kernel_size,
-            padding=dilation * (kernel_size - 1) // 2,
-            dilation=dilation,
-        )
-        self.relu = nn.ReLU()
-
-    def forward(self, x):
-        return self.relu(self.conv(x))
-
-
-class TCNModel(nn.Module):
-    def __init__(self, input_dim, hidden_dim=64):
-        super().__init__()
-        self.tcn1 = TCNBlock(input_dim, hidden_dim, dilation=1)
-        self.tcn2 = TCNBlock(hidden_dim, hidden_dim, dilation=2)
-        self.fc = nn.Linear(hidden_dim, 3)
-
-    def forward(self, x):
-        x = x.transpose(1, 2)
-        x = self.tcn1(x)
-        x = self.tcn2(x)
-        x = x[:, :, -1]
-        return self.fc(x)
-
-
-class TransformerModel(nn.Module):
-    def __init__(self, input_dim, d_model=64, nhead=4, num_layers=2):
-        super().__init__()
-        self.embedding = nn.Linear(input_dim, d_model)
-        encoder_layer = nn.TransformerEncoderLayer(d_model=d_model, nhead=nhead, batch_first=True)
-        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
-        self.fc = nn.Linear(d_model, 3)
-
-    def forward(self, x):
-        x = self.embedding(x)
-        x = self.transformer(x)
-        x = x[:, -1, :]
-        return self.fc(x)
-
-
-# 9GPT-2
-class GPT2Model:
-    def __init__(self):
-        self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
-        self.model = GPT2LMHeadModel.from_pretrained('gpt2')
-        self.tokenizer.pad_token = self.tokenizer.eos_token
-
-    def genereaza(self, context, max_length=290):
-
-        inputs = self.tokenizer(context, return_tensors="pt", truncation=True, max_length=512)
-
-        with torch.no_grad():
-            outputs = self.model.generate(
-                inputs.input_ids,
-                max_length=max_length,
-                num_return_sequences=1,
-                temperature=0.8,
-                top_p=0.92,
-                top_k=50,
-                repetition_penalty=1.2,
-                no_repeat_ngram_size=2,
-                do_sample=True,
-                pad_token_id=self.tokenizer.eos_token_id
-            )
-
-        return self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-    def genereaza_analiza_nlp(self, simbol, metrici):
-        context = (
-            f"Analysis for {simbol}: "
-            f"The stock price change is {metrici['evolutie_procent']:.2f}%. "
-            f"The current trend is {metrici['trend']} and volatility is {metrici['volatilitate']:.2f}. "
-            f"In my opinion, this means that"
-        )
-
-        insight = self.genereaza(context, max_length=100)
-        return insight.replace(context, "").strip()
-
-
-# GROK AI
-class GrokModel:
-    def __init__(self, api_key=None):
-        self.api_key = api_key or os.getenv("GROK_API_KEY")
-
-    def genereaza(self, context, system_instruction=None):
-        """Generează răspuns folosind Grok AI. 
-           system_instruction: Prompt de sistem opțional (ex: 'Ești un expert auto'). 
-           Dacă e None, folosește default-ul financiar."""
-        if not self.api_key:
-            return "GROK API KEY lipsă – folosesc modul simulat (Grok este offline)."
-
-        if system_instruction is None:
-            system_instruction = "Ești un asistent financiar profesionist. Răspunzi STRICT pe baza datelor furnizate."
-
-        try:
-            url = "https://api.groq.com/openai/v1/chat/completions"
-            headers = {
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json"
-            }
-
-            payload = {
-                "model": "llama-3.3-70b-versatile",
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": system_instruction
-                    },
-                    {
-                        "role": "user",
-                        "content": context
-                    }
-                ],
-                "temperature": 0.5, # Puțin mai creativ pentru chat
-                "max_tokens": 800
-            }
-
-            response = requests.post(url, headers=headers, json=payload, timeout=30)
-            data = response.json()
-
-            if "error" in data:
-                return f"Eroare GROK API: {data['error']['message']}"
-
-            return data["choices"][0]["message"]["content"]
-
-        except Exception as e:
-            return f"Eroare GROK API: {str(e)}"
+# LSTM/GRU/TCN/Transformer/GPT2/Grok MOVED TO dl_models.py
 
 
 # PIPELINE UNIFICAT NEXT-DAY PREDICTOR (INCLUZÂND NUMPY + PROLOG)
@@ -771,6 +602,8 @@ class NextDayPredictor:
         self.prolog_analyzer = AnalizaProlog()
 
     def _train_and_predict_seq(self, model, X_train, y_train, X_last):
+        import torch
+        from torch.utils.data import DataLoader, TensorDataset
         device = next(model.parameters()).device
 
         X_train_t = torch.tensor(X_train, dtype=torch.float32).to(device)
@@ -780,7 +613,7 @@ class NextDayPredictor:
         loader = DataLoader(dataset, batch_size=32, shuffle=True)
 
         optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-        criterion = nn.CrossEntropyLoss()
+        criterion = torch.nn.CrossEntropyLoss()
 
         model.train()
         for _ in range(15):
@@ -799,7 +632,7 @@ class NextDayPredictor:
 
         return pred
 
-    def ruleaza(self, df):
+    def ruleaza(self, df, fast_mode=True):
         rezultate = {}
 
         # 1. Pregătire date
@@ -849,53 +682,41 @@ class NextDayPredictor:
             rezultate["Prolog"] = 0
 
         # 1986 ─ NeuralNetwork (Backpropagation)
+        from src.financial.dl_models import NNModel
         nn_m = NNModel(input_dim=X_tab.shape[1])
-        nn_m.train(X_train_tab, y_train_tab)
+        nn_m.train(X_train_tab, y_train_tab, epochs=15 if fast_mode else 30)
         rezultate["NeuralNetwork"] = nn_m.predict(X_tab[-1].reshape(1, -1))[0]
 
-        # 1997 ─ LSTM
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        lstm = LSTMModel(input_dim=X_seq.shape[2]).to(device)
-        rezultate["LSTM"] = self._train_and_predict_seq(lstm, X_train_seq, y_train_seq, X_test_seq_last)
+        if not fast_mode:
+            import torch
+            from src.financial.dl_models import LSTMModel, GRUModel, TCNModel, TransformerModel
+            
+            # 1997 ─ LSTM
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            lstm = LSTMModel(input_dim=X_seq.shape[2]).to(device)
+            rezultate["LSTM"] = self._train_and_predict_seq(lstm, X_train_seq, y_train_seq, X_test_seq_last)
 
-        # 2001 ─ RandomForest
-        rf = RFModel()
-        rf.train(X_train_tab, y_train_tab)
-        rezultate["RandomForest"] = rf.predict(X_tab[-1].reshape(1, -1))[0]
+            # 2014 ─ GRU
+            gru = GRUModel(input_dim=X_seq.shape[2]).to(device)
+            rezultate["GRU"] = self._train_and_predict_seq(gru, X_train_seq, y_train_seq, X_test_seq_last)
 
-        # 2014 ─ GRU
-        gru = GRUModel(input_dim=X_seq.shape[2]).to(device)
-        rezultate["GRU"] = self._train_and_predict_seq(gru, X_train_seq, y_train_seq, X_test_seq_last)
+            # 2016 ─ TCN
+            tcn = TCNModel(input_dim=X_seq.shape[2]).to(device)
+            rezultate["TCN"] = self._train_and_predict_seq(tcn, X_train_seq, y_train_seq, X_test_seq_last)
 
-        # 2016 ─ TCN
-        tcn = TCNModel(input_dim=X_seq.shape[2]).to(device)
-        rezultate["TCN"] = self._train_and_predict_seq(tcn, X_train_seq, y_train_seq, X_test_seq_last)
-
-        # 2017 ─ Transformer
-        trans = TransformerModel(input_dim=X_seq.shape[2]).to(device)
-        rezultate["Transformer"] = self._train_and_predict_seq(trans, X_train_seq, y_train_seq, X_test_seq_last)
+            # 2017 ─ Transformer
+            trans = TransformerModel(input_dim=X_seq.shape[2]).to(device)
+            rezultate["Transformer"] = self._train_and_predict_seq(trans, X_train_seq, y_train_seq, X_test_seq_last)
+        else:
+             rezultate["LSTM"] = None
+             rezultate["GRU"] = None
+             rezultate["TCN"] = None
+             rezultate["Transformer"] = None
 
         return rezultate
 
 
-#  CALCULATOR METRICI DE PERFORMANȚĂ
-class PerformanceMetrics:
 
-    @staticmethod
-    def calculeaza_metrici_complete(y_true, y_pred, model_name="Model"):
-        y_true = np.array(y_true)
-        y_pred = np.array(y_pred)
-        
-        if len(y_true) == 0:
-            return {}
-
-        metrici = {}
-        metrici['accuracy'] = accuracy_score(y_true, y_pred)
-        metrici['balanced_accuracy'] = balanced_accuracy_score(y_true, y_pred)
-        metrici['f1_macro'] = f1_score(y_true, y_pred, average='macro', zero_division=0)
-        metrici['matthews_corrcoef'] = matthews_corrcoef(y_true, y_pred)
-        metrici['directional_accuracy'] = np.mean(np.sign(y_true) == np.sign(y_pred))
-        return metrici
 
 
 class FinancialCoordinator:
@@ -913,7 +734,7 @@ class FinancialCoordinator:
     def ensure_data_updated(self):
         self.data_manager.verifica_si_descarca_date(prag_min_randuri=200)
         
-    def analyze_company(self, company_name_or_symbol, window=900):
+    def analyze_company(self, company_name_or_symbol, window=900, fast_mode=True):
         # 1. Identify
         nume_companie, simbol = self.ner.extrage_companie(company_name_or_symbol)
         if company_name_or_symbol.upper() in [v for k,v in self.ner.simboluri.items()]:
@@ -942,7 +763,7 @@ class FinancialCoordinator:
         })
         
         # 4. Predictions
-        rezultate = self.predictor.ruleaza(df)
+        rezultate = self.predictor.ruleaza(df, fast_mode=fast_mode)
         
         # 5. Consensus
         votes = [int(v) for k,v in rezultate.items() if isinstance(v, (int, np.integer)) and k != "Prolog_explicatie"]
@@ -972,12 +793,525 @@ class FinancialCoordinator:
         }
         
     def generate_gpt_analysis(self, simbol, metrici):
+        from src.financial.dl_models import GPT2Model
         gpt = GPT2Model()
         return gpt.genereaza_analiza_nlp(simbol, metrici)
         
     def generate_grok_analysis(self, simbol, metrici, consensus_str):
+        from src.financial.dl_models import GrokModel
         grok = GrokModel()
          # Pregătim contextul
         context_grok = f"Analizează simbolul {simbol}. Evoluție: {metrici['evolutie_procent']}%, Trend: {metrici['trend']}. Decizie consensus: {consensus_str}."
         return grok.genereaza(context_grok)
 
+
+
+#  CALCULATOR METRICI DE PERFORMANȚĂ
+class PerformanceMetrics:
+
+    @staticmethod
+    def calculeaza_metrici_complete(y_true, y_pred, model_name="Model"):
+        # Conversie la numpy
+        y_true = np.array(y_true)
+        y_pred = np.array(y_pred)
+
+        # Mapare clase la indexi pozitivi pentru sklearn
+        # -1 -> 0, 0 -> 1, 1 -> 2
+        y_true_mapped = y_true + 1
+        y_pred_mapped = y_pred + 1
+
+        metrici = {}
+
+        # METRICI DE BAZĂ
+        metrici['accuracy'] = accuracy_score(y_true, y_pred)
+        metrici['balanced_accuracy'] = balanced_accuracy_score(y_true, y_pred)
+
+        # METRICI PER CLASĂ (macro average)
+        metrici['precision_macro'] = precision_score(y_true, y_pred, average='macro', zero_division=0)
+        metrici['recall_macro'] = recall_score(y_true, y_pred, average='macro', zero_division=0)
+        metrici['f1_macro'] = f1_score(y_true, y_pred, average='macro', zero_division=0)
+
+        # METRICI WEIGHTED (pentru clase dezechilibrate)
+        # METRICI WEIGHTED (pentru clase dezechilibrate)
+        # from sklearn.metrics import accuracy_score... -> REMOVED (Global import used)
+        metrici['precision_weighted'] = precision_score(y_true, y_pred, average='weighted', zero_division=0)
+        metrici['recall_weighted'] = recall_score(y_true, y_pred, average='weighted', zero_division=0)
+        metrici['f1_weighted'] = f1_score(y_true, y_pred, average='weighted', zero_division=0)
+
+        # METRICI SPECIFICE
+        metrici['matthews_corrcoef'] = matthews_corrcoef(y_true, y_pred)
+        metrici['cohen_kappa'] = cohen_kappa_score(y_true, y_pred)
+
+        # CONFUSION MATRIX
+        metrici['confusion_matrix'] = confusion_matrix(y_true, y_pred, labels=[-1, 0, 1])
+
+        # METRICI FINANCIARE SPECIFICE
+        # Directional Accuracy (câte mișcări de preț au fost prezise corect)
+        directional_acc = np.mean(np.sign(y_true) == np.sign(y_pred))
+        metrici['directional_accuracy'] = directional_acc
+
+        # Profit teoretich (simplificat: +1 pentru predicție corectă, -1 pentru greșită)
+        profit_signals = (y_true == y_pred).astype(int) * 2 - 1
+        metrici['cumulative_profit'] = np.sum(profit_signals)
+
+        return metrici
+
+    @staticmethod
+    def afiseaza_raport_detaliat(metrici, model_name):
+        print(f"RAPORT PERFORMANȚĂ: {model_name}")
+
+        print(f"\nMETRICI GENERALE:")
+        print(f"  • Accuracy:                {metrici['accuracy']:.4f}")
+        print(f"  • Balanced Accuracy:       {metrici['balanced_accuracy']:.4f}")
+        print(f"  • Directional Accuracy:    {metrici['directional_accuracy']:.4f}")
+
+        print(f"\nMETRICI MACRO (per clasă):")
+        print(f"  • Precision (macro):       {metrici['precision_macro']:.4f}")
+        print(f"  • Recall (macro):          {metrici['recall_macro']:.4f}")
+        print(f"  • F1-Score (macro):        {metrici['f1_macro']:.4f}")
+
+        print(f"\nMETRICI WEIGHTED:")
+        print(f"  • Precision (weighted):    {metrici['precision_weighted']:.4f}")
+        print(f"  • Recall (weighted):       {metrici['recall_weighted']:.4f}")
+        print(f"  • F1-Score (weighted):     {metrici['f1_weighted']:.4f}")
+
+        print(f"\nMETRICI AVANSATE:")
+        print(f"  • Matthews Correlation:    {metrici['matthews_corrcoef']:.4f}")
+        print(f"  • Cohen's Kappa:           {metrici['cohen_kappa']:.4f}")
+
+        print(f"\nMETRICI FINANCIARE:")
+        print(f"  • Cumulative Profit:       {metrici['cumulative_profit']}")
+
+        print(f"\nCONFUSION MATRIX:")
+        cm = metrici['confusion_matrix']
+        labels = ['VINDE(-1)', 'PĂSTREAZĂ(0)', 'CUMPĂRĂ(1)']
+        print(f"              Predicted")
+        print(f"              {labels[0]:>12} {labels[1]:>12} {labels[2]:>12}")
+        for i, label in enumerate(labels):
+            print(f"  Actual {label:>12}  {cm[i, 0]:>12} {cm[i, 1]:>12} {cm[i, 2]:>12}")
+
+
+# TESTE STATISTICE COMPARATIVE
+class StatisticalTests:
+
+    @staticmethod
+    def mcnemar_test(y_true, y_pred1, y_pred2, model1_name, model2_name):
+
+        y_true = np.array(y_true)
+        y_pred1 = np.array(y_pred1)
+        y_pred2 = np.array(y_pred2)
+
+        correct1 = (y_true == y_pred1)
+        correct2 = (y_true == y_pred2)
+
+        a = np.sum(correct1 & correct2)
+        b = np.sum(correct1 & ~correct2)
+        c = np.sum(~correct1 & correct2)
+        d = np.sum(~correct1 & ~correct2)
+
+        table = np.array([[a, b], [c, d]])
+
+        # Aplicăm testul McNemar
+        result = mcnemar(table, exact=True)
+
+        print(f"\nMcNemar Test: {model1_name} vs {model2_name}")
+        print(f"  Tabel contingență:")
+        print(f"    Ambele corecte:     {a}")
+        print(f"    Doar {model1_name} corect:  {b}")
+        print(f"    Doar {model2_name} corect:  {c}")
+        print(f"    Ambele greșite:     {d}")
+        print(f"  Statistic: {result.statistic:.4f}")
+        print(f"  P-value: {result.pvalue:.4f}")
+
+        if result.pvalue < 0.05:
+            print(f"  ✓ Există diferență SEMNIFICATIVĂ (p < 0.05)")
+        else:
+            print(f"  ✗ NU există diferență semnificativă (p ≥ 0.05)")
+
+        return result
+
+    @staticmethod
+    def friedman_test(results_dict, y_true):
+
+        # Construim matricea: fiecare rând = o instanță, fiecare coloană = un model
+        model_names = list(results_dict.keys())
+        n_samples = len(y_true)
+
+        # Calculăm accuracy per sample pentru fiecare model
+        accuracy_matrix = []
+        for model_name in model_names:
+            y_pred = results_dict[model_name]
+            correct = (np.array(y_true) == np.array(y_pred)).astype(int)
+            accuracy_matrix.append(correct)
+
+        accuracy_matrix = np.array(accuracy_matrix).T  # transpose pentru format corect
+
+        # Aplicăm testul Friedman
+        statistic, pvalue = friedmanchisquare(*[accuracy_matrix[:, i] for i in range(len(model_names))])
+
+        print(f"\nFriedman Test (comparație multiplă)")
+        print(f"  Modele comparate: {len(model_names)}")
+        print(f"  Sample size: {n_samples}")
+        print(f"  Chi-square statistic: {statistic:.4f}")
+        print(f"  P-value: {pvalue:.4f}")
+
+        if pvalue < 0.05:
+            print(f"  ✓ Există diferențe SEMNIFICATIVE între modele (p < 0.05)")
+        else:
+            print(f"  ✗ NU există diferențe semnificative între modele (p ≥ 0.05)")
+
+        return statistic, pvalue
+
+    @staticmethod
+    def wilcoxon_signed_rank_test(y_true, y_pred1, y_pred2, model1_name, model2_name):
+
+        # Test Wilcoxon pentru compararea pereche a două modele
+
+        correct1 = (np.array(y_true) == np.array(y_pred1)).astype(int)
+        correct2 = (np.array(y_true) == np.array(y_pred2)).astype(int)
+
+        statistic, pvalue = wilcoxon(correct1, correct2, zero_method='wilcox')
+
+        print(f"\nWilcoxon Signed-Rank Test: {model1_name} vs {model2_name}")
+        print(f"  Statistic: {statistic:.4f}")
+        print(f"  P-value: {pvalue:.4f}")
+
+        if pvalue < 0.05:
+            print(f"  ✓ Există diferență SEMNIFICATIVĂ (p < 0.05)")
+        else:
+            print(f"  ✗ NU există diferență semnificativă (p ≥ 0.05)")
+
+        return statistic, pvalue
+
+
+# VIZUALIZĂRI GRAFICE
+class PerformanceVisualizer:
+
+    @staticmethod
+    def plot_comparative_metrics(metrics_dict, save_path=None):
+
+        # Grafic comparativ cu principalele metrici pentru toate modelele
+
+        fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+        fig.suptitle('Comparație Metrici de Performanță - Toate Modelele', fontsize=16, fontweight='bold')
+
+        model_names = list(metrics_dict.keys())
+
+        # Metrici de vizualizat
+        metrics_to_plot = [
+            ('accuracy', 'Accuracy'),
+            ('balanced_accuracy', 'Balanced Accuracy'),
+            ('f1_macro', 'F1-Score (Macro)'),
+            ('precision_macro', 'Precision (Macro)'),
+            ('recall_macro', 'Recall (Macro)'),
+            ('matthews_corrcoef', 'Matthews Correlation')
+        ]
+
+        for idx, (metric_key, metric_label) in enumerate(metrics_to_plot):
+            ax = axes[idx // 3, idx % 3]
+
+            values = [metrics_dict[model][metric_key] for model in model_names]
+            colors = plt.cm.viridis(np.linspace(0, 1, len(model_names)))
+
+            bars = ax.bar(range(len(model_names)), values, color=colors, alpha=0.8, edgecolor='black')
+            ax.set_xticks(range(len(model_names)))
+            ax.set_xticklabels(model_names, rotation=45, ha='right')
+            ax.set_ylabel('Score')
+            ax.set_title(metric_label, fontweight='bold')
+            ax.set_ylim([0, 1.0])
+            ax.grid(axis='y', alpha=0.3)
+
+            # Adăugăm valori pe bare
+            for bar, value in zip(bars, values):
+                height = bar.get_height()
+                ax.text(bar.get_x() + bar.get_width() / 2., height + 0.02,
+                        f'{value:.3f}', ha='center', va='bottom', fontsize=9)
+
+        plt.tight_layout()
+        if save_path:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        # plt.show() # Disabled for headless/streamlit env
+
+    @staticmethod
+    def plot_confusion_matrices(metrics_dict, save_path=None):
+
+        # Grid cu confusion matrices pentru toate modelele
+
+        n_models = len(metrics_dict)
+        n_cols = 3
+        n_rows = (n_models + n_cols - 1) // n_cols
+
+        fig, axes = plt.subplots(n_rows, n_cols, figsize=(15, 5 * n_rows))
+        fig.suptitle('Confusion Matrices - Toate Modelele', fontsize=16, fontweight='bold')
+
+        axes = axes.flatten() if n_models > 1 else [axes]
+
+        labels = ['VINDE\n(-1)', 'PĂSTREAZĂ\n(0)', 'CUMPĂRĂ\n(1)']
+
+        for idx, (model_name, metrics) in enumerate(metrics_dict.items()):
+            cm = metrics['confusion_matrix']
+            ax = axes[idx]
+
+            # Normalizare pentru culori mai bune
+            cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax,
+                        xticklabels=labels, yticklabels=labels,
+                        cbar_kws={'label': 'Număr predicții'})
+
+            ax.set_title(f'{model_name}\nAccuracy: {metrics["accuracy"]:.3f}', fontweight='bold')
+            ax.set_ylabel('Actual')
+            ax.set_xlabel('Predicted')
+
+        # Ascundem axele nefolosite
+        for idx in range(n_models, len(axes)):
+            axes[idx].set_visible(False)
+
+        plt.tight_layout()
+        if save_path:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        # plt.show()
+
+    @staticmethod
+    def plot_model_ranking(metrics_dict, save_path=None):
+
+        model_names = list(metrics_dict.keys())
+
+        # Calculăm score-uri agregat
+        metrics_keys = ['accuracy', 'f1_macro', 'matthews_corrcoef', 'balanced_accuracy']
+
+        scores = []
+        for model in model_names:
+            score = np.mean([metrics_dict[model][key] for key in metrics_keys])
+            scores.append(score)
+
+        # Sortăm descrescător
+        sorted_indices = np.argsort(scores)[::-1]
+        sorted_models = [model_names[i] for i in sorted_indices]
+        sorted_scores = [scores[i] for i in sorted_indices]
+
+        fig, ax = plt.subplots(figsize=(12, 8))
+
+        colors = plt.cm.RdYlGn(np.linspace(0.3, 0.9, len(sorted_models)))
+        bars = ax.barh(range(len(sorted_models)), sorted_scores, color=colors,
+                       edgecolor='black', linewidth=1.5)
+
+        ax.set_yticks(range(len(sorted_models)))
+        ax.set_yticklabels(sorted_models)
+        ax.set_xlabel('Score Agregat (avg: Accuracy, F1, MCC, Balanced Acc)', fontweight='bold')
+        ax.set_title('Ranking Modele - Performanță Globală', fontsize=14, fontweight='bold')
+        ax.set_xlim([0, 1.0])
+        ax.grid(axis='x', alpha=0.3)
+
+        # Adăugăm rank și score pe bare
+        for idx, (bar, score) in enumerate(zip(bars, sorted_scores)):
+            width = bar.get_width()
+            ax.text(width + 0.02, bar.get_y() + bar.get_height() / 2,
+                    f'#{idx + 1} | {score:.4f}',
+                    ha='left', va='center', fontweight='bold', fontsize=11)
+
+        plt.tight_layout()
+        if save_path:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        # plt.show()
+
+    @staticmethod
+    def plot_financial_metrics(metrics_dict, save_path=None):
+
+        fig, axes = plt.subplots(1, 2, figsize=(15, 6))
+        fig.suptitle('Metrici Financiare - Aplicabilitate în Trading', fontsize=14, fontweight='bold')
+
+        model_names = list(metrics_dict.keys())
+
+        # Directional Accuracy
+        ax1 = axes[0]
+        dir_acc = [metrics_dict[model]['directional_accuracy'] for model in model_names]
+        colors = plt.cm.coolwarm(np.linspace(0, 1, len(model_names)))
+
+        bars1 = ax1.bar(range(len(model_names)), dir_acc, color=colors, alpha=0.8, edgecolor='black')
+        ax1.set_xticks(range(len(model_names)))
+        ax1.set_xticklabels(model_names, rotation=45, ha='right')
+        ax1.set_ylabel('Directional Accuracy')
+        ax1.set_title('Acuratețea Direcției Mișcării Prețului', fontweight='bold')
+        ax1.set_ylim([0, 1.0])
+        ax1.axhline(y=0.5, color='red', linestyle='--', label='Random (50%)')
+        ax1.grid(axis='y', alpha=0.3)
+        ax1.legend()
+
+        for bar, value in zip(bars1, dir_acc):
+            height = bar.get_height()
+            ax1.text(bar.get_x() + bar.get_width() / 2., height + 0.02,
+                     f'{value:.3f}', ha='center', va='bottom', fontsize=9)
+
+        # Cumulative Profit (simplificat)
+        ax2 = axes[1]
+        cum_profit = [metrics_dict[model]['cumulative_profit'] for model in model_names]
+        colors = ['green' if p > 0 else 'red' for p in cum_profit]
+
+        bars2 = ax2.bar(range(len(model_names)), cum_profit, color=colors, alpha=0.7, edgecolor='black')
+        ax2.set_xticks(range(len(model_names)))
+        ax2.set_xticklabels(model_names, rotation=45, ha='right')
+        ax2.set_ylabel('Profit Cumulat (simplificat)')
+        ax2.set_title('Profit Teoretic Bazat pe Semnale Corecte', fontweight='bold')
+        ax2.axhline(y=0, color='black', linestyle='-', linewidth=1)
+        ax2.grid(axis='y', alpha=0.3)
+
+        for bar, value in zip(bars2, cum_profit):
+            height = bar.get_height()
+            va = 'bottom' if height > 0 else 'top'
+            offset = 2 if height > 0 else -2
+            ax2.text(bar.get_x() + bar.get_width() / 2., height + offset,
+                     f'{int(value)}', ha='center', va=va, fontsize=9, fontweight='bold')
+
+        plt.tight_layout()
+        if save_path:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        # plt.show()
+
+
+# SISTEM COMPLET DE EVALUARE
+class ModelEvaluationOrchestrator:
+
+    def __init__(self):
+        self.metrics_calculator = PerformanceMetrics()
+        self.statistical_tests = StatisticalTests()
+        self.visualizer = PerformanceVisualizer()
+
+    def evalueaza_complet(self, y_true, predictions_dict, output_dir="evaluation_results"):
+
+        import os
+        os.makedirs(output_dir, exist_ok=True)
+
+        print("SISTEM COMPLET DE EVALUARE PERFORMANȚĂ MODELE ML/DL")
+
+        # CALCUL METRICI PENTRU FIECARE MODEL
+        print("\n[1/4] Calculare metrici de performanță...")
+        all_metrics = {}
+
+        for model_name, y_pred in predictions_dict.items():
+            metrics = self.metrics_calculator.calculeaza_metrici_complete(
+                y_true, y_pred, model_name
+            )
+            all_metrics[model_name] = metrics
+            self.metrics_calculator.afiseaza_raport_detaliat(metrics, model_name)
+
+        # TESTE STATISTICE
+        print("[2/4] Teste statistice comparative...")
+
+        # Friedman test (comparație multiplă)
+        self.statistical_tests.friedman_test(predictions_dict, y_true)
+
+        # McNemar pairwise (primele 3 modele pentru exemplu)
+        model_list = list(predictions_dict.keys())
+        if len(model_list) >= 2:
+            self.statistical_tests.mcnemar_test(
+                y_true,
+                predictions_dict[model_list[0]],
+                predictions_dict[model_list[1]],
+                model_list[0],
+                model_list[1]
+            )
+
+        # VIZUALIZĂRI
+        print("[3/4] Generare vizualizări...")
+
+        self.visualizer.plot_comparative_metrics(
+            all_metrics,
+            save_path=f"{output_dir}/comparative_metrics.png"
+        )
+
+        self.visualizer.plot_confusion_matrices(
+            all_metrics,
+            save_path=f"{output_dir}/confusion_matrices.png"
+        )
+
+        self.visualizer.plot_model_ranking(
+            all_metrics,
+            save_path=f"{output_dir}/model_ranking.png"
+        )
+
+        self.visualizer.plot_financial_metrics(
+            all_metrics,
+            save_path=f"{output_dir}/financial_metrics.png"
+        )
+
+        # RAPORT FINAL
+        print("[4/4] Raport Final - Recomandări")
+
+        self._genereaza_raport_final(all_metrics)
+
+        print(f"\n✓ Evaluare completă! Grafice salvate în: {output_dir}/")
+
+        return all_metrics
+
+    def _genereaza_raport_final(self, metrics_dict):
+
+        # Generează recomandări finale bazate pe metrici
+        # Calculăm scoruri composite
+        model_scores = {}
+        for model, metrics in metrics_dict.items():
+            score = (
+                    metrics['accuracy'] * 0.25 +
+                    metrics['f1_macro'] * 0.25 +
+                    metrics['matthews_corrcoef'] * 0.25 +
+                    metrics['directional_accuracy'] * 0.25
+            )
+            model_scores[model] = score
+
+        # Sortare
+        sorted_models = sorted(model_scores.items(), key=lambda x: x[1], reverse=True)
+
+        print("\nTOP 3 MODELE RECOMANDATE:")
+        for idx, (model, score) in enumerate(sorted_models[:3], 1):
+            print(f"\n  {idx}. {model}")
+            print(f"     Score compozit: {score:.4f}")
+            print(f"     Accuracy: {metrics_dict[model]['accuracy']:.4f}")
+            print(f"     F1-Macro: {metrics_dict[model]['f1_macro']:.4f}")
+            print(f"     Directional Acc: {metrics_dict[model]['directional_accuracy']:.4f}")
+
+        print("\nRECOMANDĂRI:")
+        best_model = sorted_models[0][0]
+        print(f"  • Modelul {best_model} prezintă cea mai bună performanță globală")
+
+        # Verificăm dacă există modele apropiate ca performanță
+        if len(sorted_models) > 1:
+            diff = sorted_models[0][1] - sorted_models[1][1]
+            if diff < 0.02:
+                print(f"  • {sorted_models[1][0]} este foarte aproape ca performanță - considerați ensemble")
+
+        # Recomandare bazată pe directional accuracy
+        best_dir_acc = max(metrics_dict.items(), key=lambda x: x[1]['directional_accuracy'])
+        if best_dir_acc[0] != best_model:
+            print(
+                f"  • Pentru trading real, considerați {best_dir_acc[0]} (directional accuracy: {best_dir_acc[1]['directional_accuracy']:.4f})")
+
+
+#  CONSENS
+def consensus(rezultate, pret_curent):
+    """
+    Transformă toate predicțiile valide în clase [-1, 0, 1]
+    și aplică vot majoritar.
+    """
+    rezultate_clase = {}
+
+    for k, v in rezultate.items():
+        # Ignorăm explicațiile
+        if k == "Prolog_explicatie":
+            continue
+
+        # Orice model care nu știe → NU votează
+        elif v is None:
+            continue
+
+        # Modele ML clasice (-1,0,1)
+        else:
+            rezultate_clase[k] = int(v)
+
+    # Dacă nimeni nu a votat
+    if not rezultate_clase:
+        return None, rezultate_clase
+
+    votes = list(rezultate_clase.values())
+    final = max(set(votes), key=votes.count)
+
+    return final, rezultate_clase
